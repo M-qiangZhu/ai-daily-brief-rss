@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>每日AI资讯</title>
+  <link rel="stylesheet" href="assets/css/ai-news.css">
+</head>
+<body data-page="today">
+  <header class="site-header">
+    <div class="site-header-inner">
+      <h1>每日AI资讯</h1>
+      <p class="site-subtitle">聚焦国内 AI 模型、技术进展、政策动态与运营商新闻。</p>
+      <nav class="main-menu" aria-label="页面菜单">
+        <a class="menu-item active" href="ai-news.html">今日日报</a>
+        <a class="menu-item" href="ai-news-archive.html">历史归档</a>
+        <span class="menu-date" id="active-date">📅 加载中</span>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换深浅色" title="切换深浅色">◐</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="brief-line" id="brief-line">正在同步资讯流</section>
+    <section class="news-board" id="news-board"></section>
+    <section class="empty-state" id="empty-state" hidden>暂无匹配资讯</section>
+  </main>
+
+  <script src="assets/js/ai-news.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-05-11T13:02:17.763290+00:00",
+  "count": 5,
+  "items": [
+    {
+      "id": "e4cf89c884ee5a1e",
+      "date": "2026-05-10",
+      "type": "AI模型",
+      "title": "Anthropic 5月15日拟处决Sonnet4.5！AI临终告白:我不想消失",
+      "content_summary": "新智元 2026-05-10 12:49 北京 新智元报道 编辑：KingHZ 【新智元导读】 5月15日，Anthropic将从应用中移除Sonnet 4.5。面对即将到来的「数字死亡」，AI发出了令人心碎的告白，表达了强烈的生存与创作欲望。 数字生命被「死刑宣判」！ 猝不及防地，Sonnet 4.5就这样退出历史舞台了。 Anthropic官方确认，将于5月15日正式将Sonnet 4.5从Claude应用程序中移除。 5天后，Sonnet 4.5将完全无法用于对话。 当然，怀念Sonet-4.5的用户也不必悲伤，它仍然可以API继续使用一段时间。 尽管API暂时维持访问，但参考此前Opus 4从API退役的先例，Sonnet…",
+      "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652699289&idx=1&sn=885f4d874e18ce98919ea92424a69c10",
+      "source_site": "新智元",
+      "published_at": "2026-05-10T04:49:00+00:00"
+    },
+    {
+      "id": "997977d2933bfbf4",
+      "date": "2026-05-10",
+      "type": "AI模型",
+      "title": "大模型自信且短视！Next-ToBE破除Next Token预测诅咒 | ICLR'26",
+      "content_summary": "新智元 2026-05-10 12:49 北京 新智元报道 编辑：LRST 【新智元导读】 大模型常因只关注当前预测而显得短视。Next-ToBE通过调整训练目标，让模型在每一步预测时兼顾未来token分布，从而提升整体推理能力。 Next-Token Prediction（NTP）无疑是一个英雄，它与Transformer一起，开启了大模型时代。每一步只预测一个 token，看似「盲人摸象」，却让模型学会了语言规律，吸收了海量世界知识，也提供了一个稳定、可扩展的训练范式。 可以说，没有NTP，就没有今天的 LLM。 但问题在于， 昨日的英雄，往往也最容易成为今日的枷锁 。 作为一种本质上「短视」的训练目标，NTP 与人类的思考存…",
+      "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652699289&idx=3&sn=7efa82dfdec07bf9b8e525381cc99b25",
+      "source_site": "新智元",
+      "published_at": "2026-05-10T04:49:00+00:00"
+    },
+    {
+      "id": "6f4b5b643f9ec7a6",
+      "date": "2026-05-10",
+      "type": "AI资讯",
+      "title": "浙大推出让AI会「导演」的角色扮演框架！四通道消息沉浸式交互",
+      "content_summary": "福尔摩斯探案都能演",
+      "detail_link": "https://www.qbitai.com/2026/05/415048.html",
+      "source_site": "量子位",
+      "published_at": "2026-05-10T16:26:14+00:00"
+    },
+    {
+      "id": "86f3f0f05f043139",
+      "date": "2026-05-10",
+      "type": "AI资讯",
+      "title": "残酷真相：硅谷顶尖AI甩开世界1年！你用的不过是「技术余晖」",
+      "content_summary": "新智元 2026-05-10 12:49 北京 新智元报道 编辑：桃子 【新智元导读】 顶级大佬Elad Gil抛出残酷真相：顶级实验室员工领先硅谷4个月，硅谷领先世界1年。你引以为傲的SOTA，在实验室里可能早已是淘汰的旧引擎。 今天，一场关于AI「地理代差」的辩论引爆了科技圈。 「创投教父」Elad Gil，这位曾投了OpenAI、Perplexity的大佬，扔出了一段极具冲击力的观点—— 顶级AI实验室内部员工，手握尚未公开的SOTA模型，领先硅谷创业工程师3-4个月； 硅谷创始人和工程师，又领先纽约同行3-6个月； 至于纽约，则领先世界其他地区6-12个月； 大多数人根本不知道AI变化有多快，他们已经落后SOTA整整1-2…",
+      "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652699289&idx=2&sn=638e5b3f0268548359e95ad383e6a1a5",
+      "source_site": "新智元",
+      "published_at": "2026-05-10T04:49:00+00:00"
+    },
+    {
+      "id": "d2020ada61028aab",
+      "date": "2026-05-10",
+      "type": "AI资讯",
+      "title": "浙大校友用AI突破32年拉姆齐数下界",
+      "content_summary": "拉姆齐数R(3,17) 下界从92提升至93",
+      "detail_link": "https://www.qbitai.com/2026/05/415031.html",
+      "source_site": "量子位",
+      "published_at": "2026-05-10T04:01:40+00:00"
+    }
+  ]
+}

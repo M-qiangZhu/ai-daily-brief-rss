@@ -1,0 +1,91 @@
+{
+  "fetch_limit": 80,
+  "feeds": [
+    {
+      "name": "量子位",
+      "url": "https://www.qbitai.com/feed",
+      "category": null,
+      "enabled": true,
+      "max_entries": 20
+    },
+    {
+      "name": "机器之心",
+      "url": "https://www.jiqizhixin.com/rss",
+      "category": null,
+      "enabled": false,
+      "max_entries": 20
+    },
+    {
+      "name": "InfoQ 中国 AI",
+      "url": "https://www.infoq.cn/feed/tag/AI",
+      "category": null,
+      "enabled": false,
+      "max_entries": 20
+    },
+    {
+      "name": "阮一峰博客",
+      "url": "https://www.ruanyifeng.com/blog/atom.xml",
+      "category": null,
+      "enabled": true,
+      "max_entries": 20
+    },
+    {
+      "name": "IT之家",
+      "url": "https://www.ithome.com/rss/",
+      "category": null,
+      "enabled": true,
+      "max_entries": 30
+    },
+    {
+      "name": "V2EX",
+      "url": "https://v2ex.com/index.xml",
+      "category": null,
+      "enabled": true,
+      "max_entries": 30
+    },
+    {
+      "name": "新智元",
+      "url": "https://wechat2rss.xlab.app/feed/ede30346413ea70dbef5d485ea5cbb95cca446e7.xml",
+      "category": null,
+      "enabled": true,
+      "max_entries": 30
+    }
+  ],
+  "searches": [
+    {
+      "name": "AI 垂直媒体",
+      "query": "人工智能 大模型 生成式AI 智能体 机器之心 量子位 InfoQ",
+      "category": null,
+      "enabled": true,
+      "max_results": 12
+    },
+    {
+      "name": "主流财经科技媒体",
+      "query": "AI 大模型 人工智能 算力 智能体 36氪 财联社 第一财经 每日经济新闻 21世纪经济报道 澎湃 证券时报",
+      "category": null,
+      "enabled": true,
+      "max_results": 12
+    },
+    {
+      "name": "国家与江苏 AI 政策",
+      "query": "人工智能 政策 工信部 国家数据局 江苏省人民政府 江苏省工信厅",
+      "category": "政策",
+      "enabled": true,
+      "max_results": 12
+    },
+    {
+      "name": "运营商 AI 新闻",
+      "query": "中国电信 中国移动 中国联通 人工智能 AI 大模型 算力 云 智能体",
+      "category": "运营商",
+      "enabled": true,
+      "max_results": 12
+    },
+    {
+      "name": "权威转载源",
+      "query": "人工智能 大模型 AI 新华网 央视网 人民网",
+      "category": null,
+      "enabled": true,
+      "max_results": 10
+    }
+  ]
+}
