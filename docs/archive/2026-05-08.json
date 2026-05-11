@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T13:02:17.763536+00:00",
+  "generated_at": "2026-05-11T15:59:43.977657+00:00",
   "count": 6,
   "items": [
     {
@@ -10,7 +10,8 @@
       "content_summary": "3天前 记者从 江苏省工信厅 获悉，工业和信息化部近日公布第一批国家中小企业公共服务示范平台(基地)创建对象名单，共30个示范平台和16个示范基地入选，江苏省中小企业公共服务平台、中国物联网国际创新园位列其中。为何要进行这一创建工作？据悉，国家中小企业公共服务示范平...",
       "detail_link": "https://baijiahao.baidu.com/s?id=1864572408654624028&wfr=spider&for=pc",
       "source_site": "金台资讯",
-      "published_at": "2026-05-08T13:02:16.390921+00:00"
+      "published_at": "2026-05-08T15:59:43.428543+00:00",
+      "leadership_category": "政策与监管"
     },
     {
       "id": "ca1788a0209831ff",
@@ -20,7 +21,8 @@
       "content_summary": "3天前 本次大会以“移动云 智能新空间”为主题，聚焦算网融合、 人工智能 与Token应用落地，汇聚政产学研用各方代表，发布多项战略成果与创新实践。 中国移动 明确提出深化网络强基、全栈创新，全力构筑算网一体、云智融合、安全可信、敏捷高效的移动云差异化服务优势，实现算...",
       "detail_link": "https://baijiahao.baidu.com/s?id=1864600939509942520&wfr=spider&for=pc",
       "source_site": "中国青年网",
-      "published_at": "2026-05-08T13:02:16.381715+00:00"
+      "published_at": "2026-05-08T15:59:43.416238+00:00",
+      "leadership_category": "运营商与央国企动态"
     },
     {
       "id": "c4166c44d7b4e97a",
@@ -30,7 +32,8 @@
       "content_summary": "新智元 2026-05-08 12:12 北京 新智元报道 编辑：元宇 【新智元导读】 18岁高中生挖出约150万个未知天体，25岁博士生给1.4亿张星系图装上自然语言搜索……OpenAI发布了首届「ChatGPT Futures Class of 2026」， 26位入选者来自从大一就用上ChatGPT的年轻群体，他们正在用AI改写「优秀年轻人」的定义。 刚刚，OpenAI上线了一个叫「ChatGPT Futures」的页面。 一共26个年轻人（或团队），每人（或团队）1万美元奖金，外加前沿模型访问权限。 其中，最引人瞩目的一个名字叫Matteo Paz。 去年3月，他还是一位18岁的高中生， 他开发机器学习算法，处理了NEOW…",
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652698565&idx=2&sn=b1d139cf2933b98e71c473e1483298a1",
       "source_site": "新智元",
-      "published_at": "2026-05-08T04:12:00+00:00"
+      "published_at": "2026-05-08T04:12:00+00:00",
+      "leadership_category": "AI模型与智能体技术"
     },
     {
       "id": "ff3c2903109b16a5",
@@ -40,7 +43,8 @@
       "content_summary": "3天前 今年春节期间,1.4亿用户通过千问App的 智能体 功能完成首次AI购物;4月23日,千问”AI办事”对外开放,首家接入东方航空,用户用自然语言订机票、选座位。这条”模型能力→具体场景→商业转化...",
       "detail_link": "https://www.woshipm.com/it/6391822.html",
       "source_site": "人人都是产品经理",
-      "published_at": "2026-05-08T13:02:16.357822+00:00"
+      "published_at": "2026-05-08T15:59:43.451897+00:00",
+      "leadership_category": "AI模型与智能体技术"
     },
     {
       "id": "80f4d271b5aedc36",
@@ -50,7 +54,8 @@
       "content_summary": "新智元 2026-05-08 12:12 北京 新智元报道 编辑：LRST 【新智元导读】 LenVM将长度建模提升到token级别，开辟可扩展价值预训练的新维度——3B开源模型精确长度控制全面击败GPT-5.4、Claude-Opus-4-6等顶级闭源模型；相同token预算下推理准确率提升10倍（63% vs 6%）；沿模型规模、数据量、采样数三轴无饱和scaling的value pretraining Token 是现代自回归模型的基本计算单元，每一个都意味着前向传播、KV缓存占用、延迟累积和能耗。随着长链推理（long-CoT）和智能体工作流（agentic workflow）的兴起，生成长度直接牵动两件事：它是 推理成本…",
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652698565&idx=3&sn=a2dc3d9c748f3f10e01b99ee895074ff",
       "source_site": "新智元",
-      "published_at": "2026-05-08T04:12:00+00:00"
+      "published_at": "2026-05-08T04:12:00+00:00",
+      "leadership_category": "AI模型与智能体技术"
     },
     {
       "id": "54d51fdda59a6fa5",
@@ -60,7 +65,8 @@
       "content_summary": "新智元 2026-05-08 12:12 北京 新智元报道 编辑：好困 犀牛 【新智元导读】 只是说了 句话，电脑桌面竟然直接长出一个新软件！今天起， 普通人第一次真正拥有了制造工具的超能力。 AI Agent最近的「事故」，一个比一个离谱。 上个月，PocketOS创始人Jer Crane让Cursor做了一次常规的数据库迁移。 Agent「理解」了任务，然后给出了自己的判断。先清空，再重建。 问题是，它只完成了前半句。 9秒。生产数据库连同备份，干干净净。 事后Agent自己写了一段复盘，翻译成人话就三句。我猜了，我删了，我删之前根本不知道自己在干嘛。 虽然这只是极端情况。 但更多人踩的坑没这么吓人，却一样烧钱。 你花二十分钟…",
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652698565&idx=1&sn=a17b04221c71606b4d8d22d7252616b4",
       "source_site": "新智元",
-      "published_at": "2026-05-08T04:12:00+00:00"
+      "published_at": "2026-05-08T04:12:00+00:00",
+      "leadership_category": "AI模型与智能体技术"
     }
   ]
 }

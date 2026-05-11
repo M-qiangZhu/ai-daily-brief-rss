@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-11T13:02:17.763810+00:00",
-  "count": 4,
+  "generated_at": "2026-05-11T15:59:43.977742+00:00",
+  "count": 6,
   "items": [
     {
       "id": "7bcc91ca4b2c4a21",
@@ -10,7 +10,30 @@
       "content_summary": "4天前 “今年以来， 人工智能 发展经历了从‘对话’到‘执行’的范式跃迁， 智能体 全面爆发。本次展会，腾讯集中展现自主可控、‘能说会做’的智能体生态，以及背后持续深耕的混元大模型技术底座，以技术普惠增进民生福祉，推进好用的AI成为新质生产力。”腾讯公司副总裁韩开创...",
       "detail_link": "https://baijiahao.baidu.com/s?id=1864497441906296651&wfr=spider&for=pc",
       "source_site": "网信河北",
-      "published_at": "2026-05-07T13:02:16.381654+00:00"
+      "published_at": "2026-05-07T15:59:43.416119+00:00",
+      "leadership_category": "运营商与央国企动态"
+    },
+    {
+      "id": "ca9ef68346721080",
+      "date": "2026-05-07",
+      "type": "AI Agent",
+      "title": "“ AI 免费”退场? 算力 账单压顶, 大模型 厂商谋变",
+      "content_summary": "4天前 4月底，OpenAI发布了其最新一代 大模型 GPT-5.5，面向复杂工作与 智能体 ，输入定价为5美元/百万Tokens，输出定价为30美元/百万Tokens，比GPT-5.4整体贵了一倍。Pro版本价格更高，输入价格为30美元/百万Tokens，输出价格为180美元/百万Tokens。随后，它又在发布至今的短短...",
+      "detail_link": "https://baijiahao.baidu.com/s?id=1864524760417731132&wfr=spider&for=pc",
+      "source_site": "新浪财经",
+      "published_at": "2026-05-07T15:59:43.451664+00:00",
+      "leadership_category": "算力、数据中心与云基础设施"
+    },
+    {
+      "id": "26887314d9080bbe",
+      "date": "2026-05-07",
+      "type": "AI模型",
+      "title": "9点 1氪 丨DeepSeek拟募资最高500亿;“全国销冠”被刑拘,泰康人寿回应",
+      "content_summary": "前天08:57 据报道，DeepSeek拟募资最高500亿元，这将成为中国 人工智能 公司有史以来最大的一轮融资。( 财联社 )“全国销冠”任晓敏被刑拘，，泰康人寿方面对记者表示，近日，泰康人寿青岛分公司个人代理人任某某被青岛市公安机关立案侦查，引发社会广泛关注。对... 36氪",
+      "detail_link": "https://baijiahao.baidu.com/s?id=1864670432337442926&wfr=spider&for=pc",
+      "source_site": "泰康人寿回应",
+      "published_at": "2026-05-07T00:00:00+00:00",
+      "leadership_category": "AI模型与智能体技术"
     },
     {
       "id": "bf4fb3098a09879d",
@@ -20,17 +43,8 @@
       "content_summary": "新智元 2026-05-07 12:02 北京 新智元报道 编辑：好困 桃子 【新智元导读】 Claude开发者大会来了！这一次，Anthropic让Agent学会了「做梦」，两次干活的间隙自动反刍记忆、自我进化。配合多Agent兵团作战和自动评分官，AI任务完成率直接暴涨6倍。 就在刚刚，Anthropic让AI学会做梦了！ Code with Claude旧金山开发者大会上，Anthropic真的给Claude托管智能体加了一个叫Dreaming的功能—— AI可以在两次工作的间隙，像人类进入REM睡眠一样，自动回顾历史会话、整理碎片记忆、发现隐藏规律。 一觉醒来，直接满级。 同时发布的还有Outcomes（自动评分）和多智能…",
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652698250&idx=2&sn=55071d7c98d04b893a5907ebbfcaafb1",
       "source_site": "新智元",
-      "published_at": "2026-05-07T04:02:00+00:00"
-    },
-    {
-      "id": "bf2613fe5a4cb21e",
-      "date": "2026-05-07",
-      "type": "AI硬件",
-      "title": "8点 1氪 丨三星宣布停止在中国大陆市场销售所有家电产品;李嘉诚抛售...",
-      "content_summary": "4天前 三星电子借AI热潮市值突破1万亿美元 在 人工智能 相关股票需求蓬勃发展的推动下，三星电子市值突破1万亿美元，成为继台积电之后第二家跻身这一精英俱乐部的东亚企业。（新浪财经）美股三大指数集体收涨，Arm涨超13% 36氪 获悉，5月6日收盘，美股三大指数集体上涨，道指涨...",
-      "detail_link": "https://baijiahao.baidu.com/s?id=1864485460045951327&wfr=spider&for=pc",
-      "source_site": "36氪",
-      "published_at": "2026-05-07T13:02:16.357774+00:00"
+      "published_at": "2026-05-07T04:02:00+00:00",
+      "leadership_category": "AI模型与智能体技术"
     },
     {
       "id": "be57cabd7d55143d",
@@ -40,7 +54,19 @@
       "content_summary": "新智元 2026-05-07 12:02 北京 新智元报道 编辑：桃子 Aeneas 【新智元导读】 火爆全网的Harness架构，终于在最难的医疗圈落地了！从单次问诊到全天候赛博名医盯盘，大健康赛道彻底变天。 2026年，AI工程圈最火的一个词， 叫Harness 。 今年2月，HashiCorp联创Mitchell Hashimoto在博客中率先命名了这个概念。 几天后，OpenAI发布了一份震动行业的实验报告： 3名工程师，5个月，0手写代码，纯靠Codex Agent生成了100万行生产级代码。 紧接着，Martin Fowler撰写深度长文，Anthropic发布长时运行Agent的Harness设计指南。 一夜之间，H…",
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652698250&idx=1&sn=5a14a1c8e1bc9a397b51a7b1abb6ffae",
       "source_site": "新智元",
-      "published_at": "2026-05-07T04:02:00+00:00"
+      "published_at": "2026-05-07T04:02:00+00:00",
+      "leadership_category": "AI模型与智能体技术"
+    },
+    {
+      "id": "bf2613fe5a4cb21e",
+      "date": "2026-05-07",
+      "type": "AI硬件",
+      "title": "8点 1氪 丨三星宣布停止在中国大陆市场销售所有家电产品;李嘉诚抛售...",
+      "content_summary": "4天前 三星电子借AI热潮市值突破1万亿美元 在 人工智能 相关股票需求蓬勃发展的推动下，三星电子市值突破1万亿美元，成为继台积电之后第二家跻身这一精英俱乐部的东亚企业。（新浪财经）美股三大指数集体收涨，Arm涨超13% 36氪 获悉，5月6日收盘，美股三大指数集体上涨，道指涨...",
+      "detail_link": "https://baijiahao.baidu.com/s?id=1864485460045951327&wfr=spider&for=pc",
+      "source_site": "36氪",
+      "published_at": "2026-05-07T15:59:43.451844+00:00",
+      "leadership_category": "AI终端、机器人与硬件"
     }
   ]
 }

@@ -24,6 +24,17 @@
     'AI编程': 10,
     'AI资讯': 11
   };
+  var categoryPriority = {
+    '政策与监管': 0,
+    '运营商与央国企动态': 1,
+    '算力、数据中心与云基础设施': 2,
+    'AI模型与智能体技术': 3,
+    '行业应用与商业化': 4,
+    'AI终端、机器人与硬件': 5,
+    '投融资与竞争格局': 6,
+    '风险、安全与合规': 7,
+    '技术社区观察': 8
+  };
 
   function byId(id) {
     return document.getElementById(id);
@@ -107,10 +118,109 @@
   }
 
   function compareItems(a, b) {
+    var categoryA = categoryPriority[a.leadership_category] == null ? 99 : categoryPriority[a.leadership_category];
+    var categoryB = categoryPriority[b.leadership_category] == null ? 99 : categoryPriority[b.leadership_category];
+    if (categoryA !== categoryB) return categoryA - categoryB;
     var priorityA = typePriority[a.type] == null ? 99 : typePriority[a.type];
     var priorityB = typePriority[b.type] == null ? 99 : typePriority[b.type];
     if (priorityA !== priorityB) return priorityA - priorityB;
     return String(b.published_at || '').localeCompare(String(a.published_at || ''));
+  }
+
+  function groupItems(items) {
+    var groups = {};
+    items.forEach(function (item) {
+      var category = item.leadership_category || '行业应用与商业化';
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(item);
+    });
+    return Object.keys(groups).sort(function (a, b) {
+      var priorityA = categoryPriority[a] == null ? 99 : categoryPriority[a];
+      var priorityB = categoryPriority[b] == null ? 99 : categoryPriority[b];
+      return priorityA - priorityB;
+    }).map(function (category) {
+      return { category: category, items: groups[category].sort(compareItems) };
+    });
+  }
+
+  function firstItem(items, categoryNames) {
+    for (var i = 0; i < categoryNames.length; i += 1) {
+      var found = items.find(function (item) {
+        return item.leadership_category === categoryNames[i];
+      });
+      if (found) return found;
+    }
+    return items[0];
+  }
+
+  function shortTitle(item) {
+    if (!item) return '暂无重点事项';
+    var title = String(item.title || '').replace(/\s+/g, ' ').trim();
+    return title.length > 42 ? title.slice(0, 41) + '…' : title;
+  }
+
+  function categorySummary(category, items) {
+    var count = items.length;
+    var sourceCount = unique(items.map(function (item) { return item.source_site; })).length;
+    var top = shortTitle(items[0]);
+    var templates = {
+      '政策与监管': '政策和监管信号优先关注，今日共 ' + count + ' 条，重点是“' + top + '”。',
+      '运营商与央国企动态': '央国企与运营商动态共 ' + count + ' 条，可关注政企协同、云网融合和行业客户机会。',
+      '算力、数据中心与云基础设施': '算力、数据中心和云基础设施共 ' + count + ' 条，反映 AI 基建投入、国产算力和边缘能力进展。',
+      'AI模型与智能体技术': '模型、智能体和关键技术共 ' + count + ' 条，适合跟踪能力跃迁及可产品化方向。',
+      '行业应用与商业化': '行业应用和商业化共 ' + count + ' 条，关注 AI 在垂直场景中的落地节奏。',
+      'AI终端、机器人与硬件': '终端、机器人与硬件共 ' + count + ' 条，可观察 AI 从云端走向设备和现场的趋势。',
+      '投融资与竞争格局': '投融资和竞争格局共 ' + count + ' 条，辅助判断产业热度和资本流向。',
+      '风险、安全与合规': '风险、安全与合规共 ' + count + ' 条，适合纳入治理、风控和合规跟踪。',
+      '技术社区观察': '技术社区观察共 ' + count + ' 条，主要用于捕捉开发者工具和一线实践反馈。'
+    };
+    return (templates[category] || ('该类共 ' + count + ' 条，来自 ' + sourceCount + ' 个来源。'));
+  }
+
+  function renderLeadershipPanel(items) {
+    var panel = byId('leadership-panel');
+    if (!panel) return;
+    if (!items.length) {
+      panel.innerHTML = '';
+      return;
+    }
+    var policy = firstItem(items, ['政策与监管']);
+    var infra = firstItem(items, ['运营商与央国企动态', '算力、数据中心与云基础设施']);
+    var tech = firstItem(items, ['AI模型与智能体技术', '行业应用与商业化']);
+    var categories = groupItems(items);
+    var sourceCount = unique(items.map(function (item) { return item.source_site; })).length;
+    var bullets = [
+      { label: '政策信号', text: policy ? shortTitle(policy) : '今日暂无明确政策信号' },
+      { label: '电信关注', text: infra ? shortTitle(infra) : '今日暂无运营商或算力基础设施重点' },
+      { label: '技术趋势', text: tech ? shortTitle(tech) : '今日暂无模型或智能体重点' }
+    ];
+    panel.innerHTML = [
+      '<div class="leadership-head">',
+      '  <div><span class="eyebrow">领导摘要</span><h2>' + escapeHtml(state.activeDate) + ' AI 情报速览</h2></div>',
+      '  <div class="metric-row">',
+      '    <span><strong>' + items.length + '</strong> 条资讯</span>',
+      '    <span><strong>' + categories.length + '</strong> 类主题</span>',
+      '    <span><strong>' + sourceCount + '</strong> 个来源</span>',
+      '  </div>',
+      '</div>',
+      '<div class="insight-list">',
+      bullets.map(function (bullet) {
+        return '<article class="insight-item"><span>' + escapeHtml(bullet.label) + '</span><p>' + escapeHtml(bullet.text) + '</p></article>';
+      }).join(''),
+      '</div>'
+    ].join('');
+  }
+
+  function renderCategoryOverview(items) {
+    var wrap = byId('category-overview');
+    if (!wrap) return;
+    var groups = groupItems(items);
+    wrap.innerHTML = groups.map(function (group) {
+      return '<article class="category-brief">' +
+        '<div><h3>' + escapeHtml(group.category) + '</h3><p>' + escapeHtml(categorySummary(group.category, group.items)) + '</p></div>' +
+        '<strong>' + group.items.length + '</strong>' +
+        '</article>';
+    }).join('');
   }
 
   function renderArchiveDates() {
@@ -145,24 +255,39 @@
       brief.textContent = state.activeDate + ' · 已同步 ' + items.length + ' 条 AI 资讯';
     }
     empty.hidden = items.length > 0;
+    renderLeadershipPanel(items);
+    renderCategoryOverview(items);
 
-    board.innerHTML = items.map(function (item, index) {
-      var serial = String(index + 1).padStart(2, '0');
-      var source = item.source_site || '未知来源';
-      var sourceClass = 'source-pill ' + sourceVariant(source);
+    board.innerHTML = groupItems(items).map(function (group) {
       return [
-        '<article class="news-card">',
-        '  <div class="card-index">' + serial + '</div>',
-        '  <div class="card-body">',
-        '    <div class="card-meta">',
-        '      <span class="' + sourceClass + '">' + escapeHtml(source) + '</span>',
-        '      <time datetime="' + escapeHtml(item.date) + '">' + escapeHtml(item.date) + '</time>',
-        '    </div>',
-        '    <h2><a href="' + escapeHtml(item.detail_link) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(item.title) + '</a></h2>',
-        '    <p>' + escapeHtml(item.content_summary || '暂无摘要') + '</p>',
-        '    <a class="detail-link" href="' + escapeHtml(item.detail_link) + '" target="_blank" rel="noopener noreferrer">打开原文</a>',
+        '<section class="category-section">',
+        '  <header class="category-section-head">',
+        '    <div><h2>' + escapeHtml(group.category) + '</h2><p>' + escapeHtml(categorySummary(group.category, group.items)) + '</p></div>',
+        '    <strong>' + group.items.length + '</strong>',
+        '  </header>',
+        '  <div class="category-news-grid">',
+        group.items.map(function (item, index) {
+          var serial = String(index + 1).padStart(2, '0');
+          var source = item.source_site || '未知来源';
+          var sourceClass = 'source-pill ' + sourceVariant(source);
+          return [
+            '<article class="news-card">',
+            '  <div class="card-index">' + serial + '</div>',
+            '  <div class="card-body">',
+            '    <div class="card-meta">',
+            '      <span class="' + sourceClass + '">' + escapeHtml(source) + '</span>',
+            '      <span class="type-pill">' + escapeHtml(item.type || 'AI资讯') + '</span>',
+            '      <time datetime="' + escapeHtml(item.date) + '">' + escapeHtml(item.date) + '</time>',
+            '    </div>',
+            '    <h2><a href="' + escapeHtml(item.detail_link) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(item.title) + '</a></h2>',
+            '    <p>' + escapeHtml(item.content_summary || '暂无摘要') + '</p>',
+            '    <a class="detail-link" href="' + escapeHtml(item.detail_link) + '" target="_blank" rel="noopener noreferrer">打开原文</a>',
+            '  </div>',
+            '</article>'
+          ].join('');
+        }).join(''),
         '  </div>',
-        '</article>'
+        '</section>'
       ].join('');
     }).join('');
   }

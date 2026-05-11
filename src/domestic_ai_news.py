@@ -303,6 +303,7 @@ STRICT_FEED_SOURCES = {"IT之家", "V2EX"}
 
 V2EX_BLOCKED_TITLE_PATTERNS = [
     "[推广]",
+    "[酷工作]",
     "中转",
     "充值",
     "注册送",
@@ -354,6 +355,18 @@ TYPE_PRIORITY = {
     "AI资讯": 11,
 }
 
+LEADERSHIP_CATEGORY_PRIORITY = {
+    "政策与监管": 0,
+    "运营商与央国企动态": 1,
+    "算力、数据中心与云基础设施": 2,
+    "AI模型与智能体技术": 3,
+    "行业应用与商业化": 4,
+    "AI终端、机器人与硬件": 5,
+    "投融资与竞争格局": 6,
+    "风险、安全与合规": 7,
+    "技术社区观察": 8,
+}
+
 
 @dataclass
 class NewsItem:
@@ -367,6 +380,7 @@ class NewsItem:
     detail_link: str
     source_site: str
     published_at: str
+    leadership_category: str = "行业应用与商业化"
 
 
 class DomesticAINewsFetcher:
@@ -482,6 +496,7 @@ class DomesticAINewsFetcher:
         category: str | None,
     ) -> NewsItem:
         news_type = category or self._classify(title, summary)
+        leadership_category = self._leadership_category(news_type, title, summary, source_site)
         return NewsItem(
             id=hashlib.sha1(f"{title}|{link}".encode("utf-8")).hexdigest()[:16],
             date=published_at.date().isoformat(),
@@ -491,6 +506,7 @@ class DomesticAINewsFetcher:
             detail_link=link,
             source_site=source_site,
             published_at=published_at.isoformat(),
+            leadership_category=leadership_category,
         )
 
     @staticmethod
@@ -627,6 +643,27 @@ class DomesticAINewsFetcher:
         return bool(re.search(r"(工信部|国家数据局).{0,16}(发布|印发|通知|部署|组织|征求|开展)", text))
 
     @staticmethod
+    def _leadership_category(news_type: str, title: str, summary: str, source_site: str) -> str:
+        text = f"{title}\n{summary}\n{source_site}".lower()
+        if source_site == "V2EX":
+            return "技术社区观察"
+        if news_type == "政策":
+            return "政策与监管"
+        if news_type == "运营商" or any(keyword in text for keyword in ["中国电信", "中国移动", "中国联通", "运营商", "央企", "国资"]):
+            return "运营商与央国企动态"
+        if news_type == "算力芯片" or any(keyword in text for keyword in ["算力", "数据中心", "云计算", "云服务", "云基础设施", "云网", "gpu", "nvidia", "昇腾", "边缘ai", "液冷"]):
+            return "算力、数据中心与云基础设施"
+        if news_type in {"AI模型", "AI Agent", "AI技术", "AI编程"}:
+            return "AI模型与智能体技术"
+        if news_type in {"机器人", "智能驾驶", "AI硬件"}:
+            return "AI终端、机器人与硬件"
+        if news_type == "AI安全" or any(keyword in text for keyword in ["安全", "合规", "监管", "对齐", "deepfake", "版权"]):
+            return "风险、安全与合规"
+        if any(keyword in text for keyword in ["融资", "估值", "ipo", "资本", "基金", "投资", "市场"]):
+            return "投融资与竞争格局"
+        return "行业应用与商业化"
+
+    @staticmethod
     def _is_relevant(
         title: str,
         summary: str,
@@ -720,6 +757,7 @@ class DomesticAINewsFetcher:
             items,
             key=lambda item: (
                 item.date,
+                -LEADERSHIP_CATEGORY_PRIORITY.get(item.leadership_category, 99),
                 -TYPE_PRIORITY.get(item.type, 99),
                 item.published_at,
             ),

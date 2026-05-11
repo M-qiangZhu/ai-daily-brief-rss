@@ -118,6 +118,11 @@ def test_v2ex_strict_filter_blocks_promotions_and_soft_questions(tmp_path):
         "土区价格太诱人了。",
         source_name="V2EX",
     )
+    assert not fetcher._is_relevant(
+        "[酷工作] base 成都 , 招 前端 React / 后端 Python + go / 中高级运维",
+        "业务涉及 AI 应用开发。",
+        source_name="V2EX",
+    )
     assert fetcher._is_relevant(
         "[分享创造] 做了个 OpenAI-compatible 多模型 API Gateway，求建议",
         "用 Claude Code、Codex、Cursor 时统一 base_url、key 和模型供应商，处理 timeout 和 429。",
@@ -145,6 +150,16 @@ def test_policy_classification_avoids_generic_planning_mentions(tmp_path):
 
     assert fetcher._classify("工信部发布人工智能行动方案", "推进产业高质量发展") == "政策"
     assert fetcher._classify("科技企业为人工智能发展规划筹措资金", "用于 AI 基础设施建设") != "政策"
+
+
+def test_leadership_category_maps_telecom_and_infra_topics(tmp_path):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"feeds": [], "searches": []}), encoding="utf-8")
+    fetcher = DomesticAINewsFetcher(config_path)
+
+    assert fetcher._leadership_category("运营商", "中国电信发布政企 AI 平台", "", "中国电信") == "运营商与央国企动态"
+    assert fetcher._leadership_category("算力芯片", "液冷数据中心支撑 AI 算力", "", "测试") == "算力、数据中心与云基础设施"
+    assert fetcher._leadership_category("AI Agent", "Agent 工具实践", "", "V2EX") == "技术社区观察"
 
 
 def test_extracts_baidu_news_result(tmp_path):
