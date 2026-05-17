@@ -7,7 +7,8 @@
 - 从 AI 垂直媒体、科技媒体、政策源、运营商新闻、综合 RSS 和社区源检索 AI 资讯。
 - 支持 RSS/Atom 数据源，包括阮一峰博客、IT之家、V2EX、新智元等。
 - 使用关键词过滤，只保留人工智能、模型、Agent、AI 编程、算力芯片、智能驾驶、机器人、AI 硬件、AI 安全等相关内容。
-- 同时生成今日页面、历史归档页面、前端 JSON 数据和本地 latest 数据。
+- 每天按中国时间自然日生成当日资讯，并永久保存每日 JSON 归档。
+- 同时生成今日页面、历史归档页面、归档索引、前端 JSON 数据和本地 latest 数据。
 - 前端为纯静态页面，支持桌面端、移动端和深/浅色切换。
 
 ## 环境要求
@@ -34,22 +35,23 @@ uv sync
 
 ## 生成资讯数据和页面
 
-推荐使用项目提供的命令行入口：
+推荐使用项目提供的命令行入口。默认会按 `Asia/Shanghai` 中国时间自然日抓取当天资讯：
 
 ```bash
-uv run ai-daily-brief --days 7
+uv run ai-daily-brief
 ```
 
 命令解释：
 
 - `uv run`：在 uv 管理的项目环境中运行命令，确保使用项目依赖。
 - `ai-daily-brief`：`pyproject.toml` 中注册的命令行脚本，实际入口是 `src.main:main`。
-- `--days 7`：只保留最近 7 天内发布或抓取到的资讯。
+- 默认日期口径：`Asia/Shanghai` 当天 00:00:00 到 23:59:59。
+- 每天生成的新资讯会合并写入 `docs/archive/YYYY-MM-DD.json`，历史 JSON 永久保留。
 
 也可以直接运行根目录入口文件：
 
 ```bash
-uv run python main.py --days 7
+uv run python main.py
 ```
 
 这和上面的命令效果基本一致，适合本地调试。
@@ -57,10 +59,10 @@ uv run python main.py --days 7
 常用参数：
 
 ```bash
-uv run ai-daily-brief --days 3
+uv run ai-daily-brief --date 2026-05-17
 ```
 
-只抓取最近 3 天内容。
+抓取指定中国自然日的资讯，适合补跑某一天。
 
 ```bash
 uv run ai-daily-brief --config data/sources.json --docs-dir docs
@@ -69,10 +71,16 @@ uv run ai-daily-brief --config data/sources.json --docs-dir docs
 显式指定数据源配置文件和静态页面输出目录。
 
 ```bash
-uv run ai-daily-brief --days 7 --json-only
+uv run ai-daily-brief --json-only
 ```
 
-只在终端输出抓取后的 JSON，不写入 `docs` 页面文件，适合调试检索结果。
+只在终端输出当天抓取后的 JSON，不写入 `docs` 页面文件，适合调试检索结果。
+
+```bash
+uv run ai-daily-brief --days 7
+```
+
+手动抓取最近 7 天窗口，适合初始化或重建一段历史；日常定时任务不建议使用这个模式。
 
 ## 本地预览
 
@@ -97,16 +105,17 @@ python3 -m http.server 4173
 
 ## 当前检索方式
 
-当前流程在 `src/domestic_ai_news.py` 中实现，主要分为六步：
+当前流程在 `src/domestic_ai_news.py`、`src/page_generator.py` 中实现，主要分为九步：
 
 1. 读取 `data/sources.json`。
 2. 并发请求启用的 RSS/Atom feed 和百度新闻搜索。
 3. 解析每条候选资讯的标题、链接、摘要、来源和发布时间。
-4. 根据 `--days` 计算时间窗口，过滤掉窗口之外的旧内容。
+4. 默认按 `Asia/Shanghai` 计算当天自然日窗口，也可用 `--date` 补跑指定日期。
 5. 用内置 AI 关键词列表匹配标题和摘要，只保留相关内容。
-6. 按链接去重、按发布时间倒序排序，并写入静态页面数据。
-7. 同一天内按领导关注优先级排序：政策、运营商、算力芯片、AI 技术、AI 模型、AI Agent、智能驾驶、机器人、AI 硬件、安全监管、AI 编程、一般 AI 资讯。
-8. 前端会进一步按领导视角聚合为：政策与监管、运营商与央国企动态、算力/数据中心/云基础设施、AI 模型与智能体技术、行业应用与商业化、AI 终端/机器人/硬件、投融资与竞争格局、风险安全与合规、技术社区观察。
+6. 按链接去重，并与当天已有归档合并，避免多次执行丢失早些时候抓到的信息。
+7. 更新 `docs/archive/index.json` 归档索引和最新一天的前端兼容数据。
+8. 同一天内按领导关注优先级排序：政策、运营商、算力芯片、AI 技术、AI 模型、AI Agent、智能驾驶、机器人、AI 硬件、安全监管、AI 编程、一般 AI 资讯。
+9. 前端会进一步按领导视角聚合为：政策与监管、运营商与央国企动态、算力/数据中心/云基础设施、AI 模型与智能体技术、行业应用与商业化、AI 终端/机器人/硬件、投融资与竞争格局、风险安全与合规、技术社区观察。
 
 ## 领导简报视图
 
@@ -117,6 +126,8 @@ python3 -m http.server 4173
 - 技术趋势：模型、智能体、关键技术与可产品化方向。
 
 正文不再只是按时间罗列新闻，而是按领导视角分类展示。每个分类会先给出一条“核心摘要”，再列出对应新闻，适合快速扫读和转写成邮件/PDF 简报。
+
+命令执行时还会生成企业微信机器人可用的 markdown 摘要。设置 `WECHAT_WEBHOOK_URL` 并添加 `--notify` 后，会把公网页面链接和当天领导摘要推送到企业微信群。
 
 RSS/Atom 来源会读取 feed 条目的标题、链接、发布时间和摘要/正文片段。百度新闻来源会访问搜索结果页，从结果块中提取标题、链接、来源、摘要和中文时间。
 
@@ -196,6 +207,7 @@ RSS 示例：
 docs/ai-news.html
 docs/ai-news-archive.html
 docs/assets/data/ai-news.json
+docs/archive/index.json
 docs/archive/YYYY-MM-DD.json
 data/ai_news/latest.json
 ```
@@ -204,8 +216,9 @@ data/ai_news/latest.json
 
 - `docs/ai-news.html`：今日资讯页面。
 - `docs/ai-news-archive.html`：历史归档页面。
-- `docs/assets/data/ai-news.json`：前端页面实际读取的数据。
-- `docs/archive/YYYY-MM-DD.json`：按日期保存的归档数据。
+- `docs/assets/data/ai-news.json`：最新有数据日期的兼容数据副本。
+- `docs/archive/index.json`：历史归档索引，包含日期、数量、分类计数和重点标题。
+- `docs/archive/YYYY-MM-DD.json`：按日期永久保存的归档数据，前端点击日期时动态读取。
 - `data/ai_news/latest.json`：最近一次生成的完整数据副本，方便其他脚本读取。
 
 ## 测试
@@ -224,6 +237,8 @@ uv run pytest
 
 临时关闭某个来源：把对应配置的 `enabled` 改为 `false`。
 
-调整抓取时间范围：修改运行命令中的 `--days`。
+补跑指定日期：使用 `--date YYYY-MM-DD`。
+
+初始化一段历史：使用 `--days 7` 等窗口参数，日常定时任务建议保持默认当天模式。
 
 查看原始 JSON：使用 `--json-only`，或打开 `docs/assets/data/ai-news.json`。

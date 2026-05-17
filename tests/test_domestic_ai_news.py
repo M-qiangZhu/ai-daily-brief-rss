@@ -190,5 +190,42 @@ def test_page_generator_writes_data(tmp_path):
 
     assert outputs["data"].exists()
     assert outputs["latest"].exists()
+    assert outputs["index"].exists()
     payload = json.loads(outputs["data"].read_text(encoding="utf-8"))
     assert payload["count"] == 0
+
+
+def test_page_generator_merges_daily_archive(tmp_path):
+    docs_dir = tmp_path / "docs"
+    generator = PageGenerator(docs_dir, latest_path=tmp_path / "latest.json")
+    first = NewsItem(
+        "1",
+        "2026-05-17",
+        "政策",
+        "政策新闻",
+        "摘要",
+        "https://example.com/1",
+        "测试",
+        "2026-05-17T09:00:00+08:00",
+        "政策与监管",
+    )
+    second = NewsItem(
+        "2",
+        "2026-05-17",
+        "AI模型",
+        "模型新闻",
+        "摘要",
+        "https://example.com/2",
+        "测试",
+        "2026-05-17T10:00:00+08:00",
+        "AI模型与智能体技术",
+    )
+
+    generator.write_daily([first])
+    generator.write_daily([first, second])
+
+    archive = json.loads((docs_dir / "archive" / "2026-05-17.json").read_text(encoding="utf-8"))
+    index = json.loads((docs_dir / "archive" / "index.json").read_text(encoding="utf-8"))
+    assert archive["count"] == 2
+    assert index["latest_date"] == "2026-05-17"
+    assert index["dates"][0]["count"] == 2

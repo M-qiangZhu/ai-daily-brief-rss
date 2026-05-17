@@ -8,11 +8,12 @@ import hashlib
 import json
 import re
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Iterable
 from urllib.parse import quote_plus, urlparse
+from zoneinfo import ZoneInfo
 
 import feedparser
 import httpx
@@ -390,17 +391,36 @@ class DomesticAINewsFetcher:
         self.config_path = Path(config_path)
         self.config = json.loads(self.config_path.read_text(encoding="utf-8"))
 
-    async def fetch(self, days: int = 1) -> list[NewsItem]:
-        since = datetime.now(timezone.utc) - timedelta(days=days)
+    async def fetch(self, days: int = 1, tz_name: str = "Asia/Shanghai") -> list[NewsItem]:
+        local_tz = ZoneInfo(tz_name)
+        since = datetime.now(local_tz).astimezone(timezone.utc) - timedelta(days=days)
+        return await self._fetch_between(since, None, local_tz)
+
+    async def fetch_date(self, target_date: date, tz_name: str = "Asia/Shanghai") -> list[NewsItem]:
+        local_tz = ZoneInfo(tz_name)
+        start = datetime.combine(target_date, time.min, tzinfo=local_tz)
+        end = datetime.combine(target_date + timedelta(days=1), time.min, tzinfo=local_tz)
+        return await self._fetch_between(
+            start.astimezone(timezone.utc),
+            end.astimezone(timezone.utc),
+            local_tz,
+        )
+
+    async def _fetch_between(
+        self,
+        since: datetime,
+        until: datetime | None,
+        local_tz: ZoneInfo,
+    ) -> list[NewsItem]:
         timeout = httpx.Timeout(30.0, connect=10.0)
         async with httpx.AsyncClient(timeout=timeout, headers=HEADERS) as client:
             tasks = []
             for source in self.config.get("feeds", []):
                 if source.get("enabled", True):
-                    tasks.append(self._fetch_feed(client, source, since))
+                    tasks.append(self._fetch_feed(client, source, since, until, local_tz))
             for source in self.config.get("searches", []):
                 if source.get("enabled", True):
-                    tasks.append(self._fetch_baidu_news(client, source, since))
+                    tasks.append(self._fetch_baidu_news(client, source, since, until, local_tz))
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -417,7 +437,10 @@ class DomesticAINewsFetcher:
         client: httpx.AsyncClient,
         source: dict,
         since: datetime,
+        until: datetime | None = None,
+        local_tz: ZoneInfo | None = None,
     ) -> list[NewsItem]:
+        local_tz = local_tz or ZoneInfo("Asia/Shanghai")
         try:
             response = await client.get(source["url"], follow_redirects=True)
             response.raise_for_status()
@@ -428,7 +451,7 @@ class DomesticAINewsFetcher:
         items: list[NewsItem] = []
         for entry in feed.entries[: source.get("max_entries", 20)]:
             published_at = self._parse_feed_date(entry) or datetime.now(timezone.utc)
-            if published_at < since:
+            if published_at < since or (until and published_at >= until):
                 continue
 
             title = self._clean_text(entry.get("title", ""))
@@ -444,6 +467,7 @@ class DomesticAINewsFetcher:
                 source_site=source.get("name", self._host(link)),
                 published_at=published_at,
                 category=source.get("category"),
+                local_tz=local_tz,
             ))
 
         return items
@@ -453,7 +477,10 @@ class DomesticAINewsFetcher:
         client: httpx.AsyncClient,
         source: dict,
         since: datetime,
+        until: datetime | None = None,
+        local_tz: ZoneInfo | None = None,
     ) -> list[NewsItem]:
+        local_tz = local_tz or ZoneInfo("Asia/Shanghai")
         try:
             response = await client.get(self._baidu_url(source["query"]), follow_redirects=True)
             response.raise_for_status()
@@ -471,10 +498,12 @@ class DomesticAINewsFetcher:
                 or self._parse_cn_time(result["summary"])
                 or datetime.now(timezone.utc)
             )
-            if published_at < since:
+            if published_at < since or (until and published_at >= until):
                 continue
 
             summary = self._summary(result["summary"] or result["title"])
+            if not self._is_relevant(result["title"], summary, source.get("keywords"), source.get("name", "")):
+                continue
             items.append(self._make_item(
                 title=result["title"],
                 link=result["link"],
@@ -482,6 +511,7 @@ class DomesticAINewsFetcher:
                 source_site=result["source"] or self._host(result["link"]),
                 published_at=published_at,
                 category=source.get("category"),
+                local_tz=local_tz,
             ))
 
         return items
@@ -494,18 +524,21 @@ class DomesticAINewsFetcher:
         source_site: str,
         published_at: datetime,
         category: str | None,
+        local_tz: ZoneInfo | None = None,
     ) -> NewsItem:
+        local_tz = local_tz or ZoneInfo("Asia/Shanghai")
+        local_published_at = published_at.astimezone(local_tz)
         news_type = category or self._classify(title, summary)
         leadership_category = self._leadership_category(news_type, title, summary, source_site)
         return NewsItem(
             id=hashlib.sha1(f"{title}|{link}".encode("utf-8")).hexdigest()[:16],
-            date=published_at.date().isoformat(),
+            date=local_published_at.date().isoformat(),
             type=news_type,
             title=title,
             content_summary=summary,
             detail_link=link,
             source_site=source_site,
-            published_at=published_at.isoformat(),
+            published_at=local_published_at.isoformat(),
             leadership_category=leadership_category,
         )
 

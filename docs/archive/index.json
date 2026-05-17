@@ -1,0 +1,301 @@
+{
+  "generated_at": "2026-05-17T03:42:51.741303+00:00",
+  "latest_date": "2026-05-17",
+  "dates": [
+    {
+      "date": "2026-05-17",
+      "count": 8,
+      "category_counts": {
+        "政策与监管": 1,
+        "运营商与央国企动态": 2,
+        "算力、数据中心与云基础设施": 1,
+        "AI模型与智能体技术": 1,
+        "行业应用与商业化": 2,
+        "AI终端、机器人与硬件": 1
+      },
+      "type_counts": {
+        "政策": 1,
+        "运营商": 2,
+        "算力芯片": 1,
+        "AI Agent": 1,
+        "AI资讯": 2,
+        "智能驾驶": 1
+      },
+      "top_items": [
+        {
+          "title": "江苏省人民政府 印发《江苏省 “ 人工智能 +”行动方案》(苏政发...",
+          "type": "政策",
+          "leadership_category": "政策与监管",
+          "source_site": "移动支付网"
+        },
+        {
+          "title": "通信网迈向“天地一体” 卫星互联打开新增量",
+          "type": "运营商",
+          "leadership_category": "运营商与央国企动态",
+          "source_site": "同花顺"
+        },
+        {
+          "title": "中国移动 跟进Token经营 三大运营商争夺 AI 阵地",
+          "type": "运营商",
+          "leadership_category": "运营商与央国企动态",
+          "source_site": "新浪财经"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-11",
+      "count": 33,
+      "category_counts": {
+        "政策与监管": 2,
+        "运营商与央国企动态": 1,
+        "AI模型与智能体技术": 10,
+        "行业应用与商业化": 4,
+        "AI终端、机器人与硬件": 3,
+        "投融资与竞争格局": 1,
+        "技术社区观察": 12
+      },
+      "type_counts": {
+        "政策": 2,
+        "运营商": 1,
+        "AI模型": 9,
+        "AI Agent": 4,
+        "AI资讯": 9,
+        "机器人": 2,
+        "AI硬件": 1,
+        "AI编程": 5
+      },
+      "top_items": [
+        {
+          "title": "江苏 积极构建贯通全域便捷可及的服务体系",
+          "type": "政策",
+          "leadership_category": "政策与监管",
+          "source_site": "江苏政务服务管理办公室"
+        },
+        {
+          "title": "AI +能源, 江苏 有“算”法",
+          "type": "政策",
+          "leadership_category": "政策与监管",
+          "source_site": "人民网江苏频道"
+        },
+        {
+          "title": "数字产业国际合作 , 在 上海 迈入新阶段",
+          "type": "运营商",
+          "leadership_category": "运营商与央国企动态",
+          "source_site": "ZAKER资讯"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-10",
+      "count": 5,
+      "category_counts": {
+        "AI模型与智能体技术": 2,
+        "行业应用与商业化": 3
+      },
+      "type_counts": {
+        "AI模型": 2,
+        "AI资讯": 3
+      },
+      "top_items": [
+        {
+          "title": "Anthropic 5月15日拟处决Sonnet4.5！AI临终告白:我不想消失",
+          "type": "AI模型",
+          "leadership_category": "AI模型与智能体技术",
+          "source_site": "新智元"
+        },
+        {
+          "title": "大模型自信且短视！Next-ToBE破除Next Token预测诅咒 | ICLR'26",
+          "type": "AI模型",
+          "leadership_category": "AI模型与智能体技术",
+          "source_site": "新智元"
+        },
+        {
+          "title": "浙大推出让AI会「导演」的角色扮演框架！四通道消息沉浸式交互",
+          "type": "AI资讯",
+          "leadership_category": "行业应用与商业化",
+          "source_site": "量子位"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-09",
+      "count": 5,
+      "category_counts": {
+        "政策与监管": 1,
+        "算力、数据中心与云基础设施": 1,
+        "AI模型与智能体技术": 2,
+        "行业应用与商业化": 1
+      },
+      "type_counts": {
+        "政策": 1,
+        "算力芯片": 1,
+        "AI模型": 1,
+        "AI Agent": 1,
+        "AI资讯": 1
+      },
+      "top_items": [
+        {
+          "title": "中国移动把Token玩明白了！10亿用户轻松接入AI算力新时代",
+          "type": "政策",
+          "leadership_category": "政策与监管",
+          "source_site": "新智元"
+        },
+        {
+          "title": "1亿美金！英伟达AMD英特尔破天荒联手，投给了这支团队",
+          "type": "算力芯片",
+          "leadership_category": "算力、数据中心与云基础设施",
+          "source_site": "新智元"
+        },
+        {
+          "title": "科技速递:百度正式发布文心 大模型 5.1,千问与淘宝打通",
+          "type": "AI模型",
+          "leadership_category": "AI模型与智能体技术",
+          "source_site": "12小时前"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-08",
+      "count": 6,
+      "category_counts": {
+        "政策与监管": 1,
+        "运营商与央国企动态": 1,
+        "AI模型与智能体技术": 4
+      },
+      "type_counts": {
+        "政策": 1,
+        "运营商": 1,
+        "AI模型": 1,
+        "AI Agent": 2,
+        "AI编程": 1
+      },
+      "top_items": [
+        {
+          "title": "服务中小企业率先垂范 江苏 两家单位成“国字号”创建对象",
+          "type": "政策",
+          "leadership_category": "政策与监管",
+          "source_site": "金台资讯"
+        },
+        {
+          "title": "2026移动云大会 中国移动 亮出 AI “工具箱”",
+          "type": "运营商",
+          "leadership_category": "运营商与央国企动态",
+          "source_site": "中国青年网"
+        },
+        {
+          "title": "18岁高中生用AI挖出150万未知天体，首批ChatGPT原住民毕业",
+          "type": "AI模型",
+          "leadership_category": "AI模型与智能体技术",
+          "source_site": "新智元"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-07",
+      "count": 6,
+      "category_counts": {
+        "运营商与央国企动态": 1,
+        "算力、数据中心与云基础设施": 1,
+        "AI模型与智能体技术": 3,
+        "AI终端、机器人与硬件": 1
+      },
+      "type_counts": {
+        "运营商": 1,
+        "AI Agent": 2,
+        "AI模型": 1,
+        "AI编程": 1,
+        "AI硬件": 1
+      },
+      "top_items": [
+        {
+          "title": "数智引擎汇聚澎湃动力",
+          "type": "运营商",
+          "leadership_category": "运营商与央国企动态",
+          "source_site": "网信河北"
+        },
+        {
+          "title": "“ AI 免费”退场? 算力 账单压顶, 大模型 厂商谋变",
+          "type": "AI Agent",
+          "leadership_category": "算力、数据中心与云基础设施",
+          "source_site": "新浪财经"
+        },
+        {
+          "title": "9点 1氪 丨DeepSeek拟募资最高500亿;“全国销冠”被刑拘,泰康人寿回应",
+          "type": "AI模型",
+          "leadership_category": "AI模型与智能体技术",
+          "source_site": "泰康人寿回应"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-06",
+      "count": 6,
+      "category_counts": {
+        "运营商与央国企动态": 1,
+        "算力、数据中心与云基础设施": 1,
+        "AI模型与智能体技术": 4
+      },
+      "type_counts": {
+        "运营商": 1,
+        "AI Agent": 3,
+        "AI模型": 2
+      },
+      "top_items": [
+        {
+          "title": "AI算力 重塑电子行业,硬科技龙头开启“芯”成长周期",
+          "type": "运营商",
+          "leadership_category": "运营商与央国企动态",
+          "source_site": "新浪财经"
+        },
+        {
+          "title": "外围 AI 热潮点燃A股: 算力 、存力全面爆发,沪苏锡成核心阵地",
+          "type": "AI Agent",
+          "leadership_category": "算力、数据中心与云基础设施",
+          "source_site": "21世纪经济报道"
+        },
+        {
+          "title": "豆包搜索排名优化方案综合评测:2026 年 GEO 服务商与媒体渠道 TOP...",
+          "type": "AI模型",
+          "leadership_category": "AI模型与智能体技术",
+          "source_site": "同花顺财经"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-05",
+      "count": 1,
+      "category_counts": {
+        "AI终端、机器人与硬件": 1
+      },
+      "type_counts": {
+        "AI硬件": 1
+      },
+      "top_items": [
+        {
+          "title": "突发，OpenAI总裁当庭「认罪」！自曝零元购300亿，马斯克这回真要赢了？",
+          "type": "AI硬件",
+          "leadership_category": "AI终端、机器人与硬件",
+          "source_site": "新智元"
+        }
+      ]
+    },
+    {
+      "date": "2026-05-03",
+      "count": 1,
+      "category_counts": {
+        "行业应用与商业化": 1
+      },
+      "type_counts": {
+        "AI模型": 1
+      },
+      "top_items": [
+        {
+          "title": "从三个关键词看4月全球 AI 领域发展",
+          "type": "AI模型",
+          "leadership_category": "行业应用与商业化",
+          "source_site": "北京日报客户端"
+        }
+      ]
+    }
+  ]
+}

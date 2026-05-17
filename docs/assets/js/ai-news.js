@@ -3,6 +3,8 @@
 
   var state = {
     allItems: [],
+    archiveIndex: [],
+    loadedByDate: {},
     dates: [],
     activeDate: '',
     page: document.body.getAttribute('data-page') || 'today'
@@ -43,7 +45,7 @@
   function preferredTheme() {
     var saved = window.localStorage.getItem(themeStorageKey);
     if (saved === 'light' || saved === 'dark') return saved;
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return 'light';
   }
 
   function applyTheme(theme) {
@@ -112,9 +114,7 @@
   }
 
   function itemsForActiveDate() {
-    return state.allItems.filter(function (item) {
-      return item.date === state.activeDate;
-    }).sort(compareItems);
+    return (state.loadedByDate[state.activeDate] || []).slice().sort(compareItems);
   }
 
   function compareItems(a, b) {
@@ -227,12 +227,28 @@
     var wrap = byId('date-list');
     if (!wrap) return;
     wrap.innerHTML = state.dates.map(function (date) {
-      var count = state.allItems.filter(function (item) { return item.date === date; }).length;
+      var entry = state.archiveIndex.find(function (item) { return item.date === date; }) || {};
+      var count = entry.count || 0;
       var active = date === state.activeDate ? ' active' : '';
       return '<button class="date-chip' + active + '" type="button" data-date="' + escapeHtml(date) + '">' +
         '<span>' + escapeHtml(date) + '</span><strong>' + count + '</strong>' +
         '</button>';
     }).join('');
+  }
+
+  function loadDateItems(date) {
+    if (!date) return Promise.resolve([]);
+    if (state.loadedByDate[date]) return Promise.resolve(state.loadedByDate[date]);
+    return fetch('archive/' + encodeURIComponent(date) + '.json', { cache: 'no-store' })
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
+      .then(function (payload) {
+        var items = payload.items || [];
+        state.loadedByDate[date] = items;
+        return items;
+      });
   }
 
   function setActiveDate(date, pushUrl) {
@@ -242,7 +258,15 @@
       window.history.replaceState(null, '', 'ai-news-archive.html?date=' + encodeURIComponent(date));
     }
     renderArchiveDates();
-    render();
+    var brief = byId('brief-line');
+    if (brief) brief.textContent = date ? date + ' · 正在读取归档' : '暂无归档数据';
+    loadDateItems(date)
+      .then(render)
+      .catch(function () {
+        if (brief) brief.textContent = date + ' · 归档数据加载失败';
+        state.loadedByDate[date] = [];
+        render();
+      });
   }
 
   function render() {
@@ -303,17 +327,13 @@
   }
 
   function init(data) {
-    state.allItems = (data.items || []).slice().sort(function (a, b) {
-      var dateOrder = String(b.date || '').localeCompare(String(a.date || ''));
-      if (dateOrder !== 0) return dateOrder;
-      return compareItems(a, b);
-    });
-    state.dates = unique(state.allItems.map(function (item) { return item.date; }));
+    state.archiveIndex = (data.dates || []).slice();
+    state.dates = state.archiveIndex.map(function (item) { return item.date; }).filter(Boolean);
 
     var urlDate = readDateFromUrl();
     state.activeDate = state.page === 'archive' && state.dates.indexOf(urlDate) >= 0
       ? urlDate
-      : state.dates[0] || '';
+      : data.latest_date || state.dates[0] || '';
 
     bindArchive();
     bindThemeToggle();
@@ -321,14 +341,36 @@
     setActiveDate(state.activeDate, state.page === 'archive');
   }
 
+  function initLegacyPayload(data) {
+    var items = (data.items || []).slice().sort(compareItems);
+    state.allItems = items;
+    state.dates = unique(items.map(function (item) { return item.date; }));
+    state.archiveIndex = state.dates.map(function (date) {
+      var count = items.filter(function (item) { return item.date === date; }).length;
+      return { date: date, count: count };
+    });
+    state.dates.forEach(function (date) {
+      state.loadedByDate[date] = items.filter(function (item) { return item.date === date; });
+    });
+    init({ dates: state.archiveIndex, latest_date: state.dates[0] || '' });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     applyTheme(preferredTheme());
-    fetch('assets/data/ai-news.json', { cache: 'no-store' })
+    fetch('archive/index.json', { cache: 'no-store' })
       .then(function (response) {
         if (!response.ok) throw new Error('HTTP ' + response.status);
         return response.json();
       })
       .then(init)
+      .catch(function () {
+        return fetch('assets/data/ai-news.json', { cache: 'no-store' })
+          .then(function (response) {
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            return response.json();
+          })
+          .then(initLegacyPayload);
+      })
       .catch(function () {
         byId('active-date').textContent = '📅 数据加载失败';
         byId('empty-state').hidden = false;

@@ -1,0 +1,15 @@
+[Unit]
+Description=AI Daily Brief static site
+After=network.target
+
+[Service]
+Type=simple
+User=devz
+WorkingDirectory=/home/devz/ai-daily-brief-rss
+Environment=PORT=19401
+ExecStart=/home/devz/ai-daily-brief-rss/scripts/serve_static.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
