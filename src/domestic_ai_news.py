@@ -12,7 +12,7 @@ from datetime import date, datetime, time, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Iterable
-from urllib.parse import quote_plus, urlparse
+from urllib.parse import parse_qsl, quote_plus, urlencode, urljoin, urlparse, urlunparse
 from zoneinfo import ZoneInfo
 
 import feedparser
@@ -358,14 +358,51 @@ TYPE_PRIORITY = {
 
 LEADERSHIP_CATEGORY_PRIORITY = {
     "政策与监管": 0,
-    "运营商与央国企动态": 1,
-    "算力、数据中心与云基础设施": 2,
-    "AI模型与智能体技术": 3,
-    "行业应用与商业化": 4,
-    "AI终端、机器人与硬件": 5,
-    "投融资与竞争格局": 6,
-    "风险、安全与合规": 7,
-    "技术社区观察": 8,
+    "南通市官方AI动态": 1,
+    "运营商与央国企动态": 2,
+    "算力、数据中心与云基础设施": 3,
+    "AI技术与产业应用": 4,
+    "投融资与竞争格局": 5,
+    "风险、安全与合规": 6,
+    "技术社区观察": 7,
+}
+
+NANTONG_TERMS = [
+    "南通",
+    "通城",
+    "崇川",
+    "通州",
+    "海门",
+    "如皋",
+    "启东",
+    "海安",
+    "如东",
+    "南通开发区",
+    "苏锡通",
+    "通州湾",
+]
+
+NANTONG_AI_TERMS = [
+    "AI",
+    "人工智能",
+    "大模型",
+    "智能体",
+    "生成式",
+    "算力",
+    "智算",
+    "机器人",
+    "具身智能",
+    "数字政府",
+    "智能制造",
+    "智慧城市",
+    "机器学习",
+    "深度学习",
+]
+
+LEGACY_LEADERSHIP_CATEGORIES = {
+    "AI模型与智能体技术",
+    "行业应用与商业化",
+    "AI终端、机器人与硬件",
 }
 
 
@@ -381,15 +418,27 @@ class NewsItem:
     detail_link: str
     source_site: str
     published_at: str
-    leadership_category: str = "行业应用与商业化"
+    leadership_category: str = "AI技术与产业应用"
+    organization: str = ""
+    language: str = "zh"
+    source_tier: str = "media"
+    source_channel: str = "feed"
 
 
 class DomesticAINewsFetcher:
-    """Fetch domestic AI news from RSS feeds and Baidu News searches."""
+    """Fetch and normalize AI news from official, media, and community sources."""
 
     def __init__(self, config_path: str | Path = "data/sources.json"):
         self.config_path = Path(config_path)
         self.config = json.loads(self.config_path.read_text(encoding="utf-8"))
+        state_dir = Path(self.config.get("state_dir", self.config_path.parent / "state"))
+        if not state_dir.is_absolute():
+            state_dir = self.config_path.parent.parent / state_dir
+        self.state_dir = state_dir
+        self.health_path = state_dir / "source_health.json"
+        self.first_seen_path = state_dir / "first_seen.json"
+        self.health = self._load_json(self.health_path, {"sources": {}})
+        self.first_seen = self._load_json(self.first_seen_path, {})
 
     async def fetch(self, days: int = 1, tz_name: str = "Asia/Shanghai") -> list[NewsItem]:
         local_tz = ZoneInfo(tz_name)
@@ -414,15 +463,15 @@ class DomesticAINewsFetcher:
     ) -> list[NewsItem]:
         timeout = httpx.Timeout(30.0, connect=10.0)
         async with httpx.AsyncClient(timeout=timeout, headers=HEADERS) as client:
-            tasks = []
-            for source in self.config.get("feeds", []):
-                if source.get("enabled", True):
-                    tasks.append(self._fetch_feed(client, source, since, until, local_tz))
-            for source in self.config.get("searches", []):
-                if source.get("enabled", True):
-                    tasks.append(self._fetch_baidu_news(client, source, since, until, local_tz))
-
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            sources = self._configured_sources()
+            results = await asyncio.gather(
+                *[
+                    self._fetch_source(client, source, since, until, local_tz)
+                    for source in sources
+                    if source.get("enabled", True)
+                ],
+                return_exceptions=True,
+            )
 
         items: list[NewsItem] = []
         for result in results:
@@ -430,7 +479,45 @@ class DomesticAINewsFetcher:
                 continue
             items.extend(result)
 
-        return self._dedupe(items)[: self.config.get("fetch_limit", 80)]
+        self._save_state()
+        return self._apply_tier_limits(self._dedupe(items))
+
+    def _configured_sources(self) -> list[dict]:
+        if self.config.get("sources"):
+            return [dict(source) for source in self.config["sources"]]
+        sources = []
+        for source in self.config.get("feeds", []):
+            sources.append({"kind": "feed", **source})
+        for source in self.config.get("searches", []):
+            sources.append({"kind": "baidu_news", **source})
+        return sources
+
+    async def _fetch_source(
+        self,
+        client: httpx.AsyncClient,
+        source: dict,
+        since: datetime,
+        until: datetime | None,
+        local_tz: ZoneInfo,
+    ) -> list[NewsItem]:
+        name = source.get("name", source.get("url", "unknown"))
+        kind = source.get("kind", "feed")
+        try:
+            if kind in {"feed", "github_atom"}:
+                items = await self._fetch_feed(client, source, since, until, local_tz)
+            elif kind == "html":
+                items = await self._fetch_html(client, source, since, until, local_tz)
+            elif kind == "huggingface_api":
+                items = await self._fetch_huggingface(client, source, since, until, local_tz)
+            elif kind == "baidu_news":
+                items = await self._fetch_baidu_news(client, source, since, until, local_tz)
+            else:
+                raise ValueError(f"Unsupported source kind: {kind}")
+            self._record_health(name, kind, True, len(items))
+            return items
+        except Exception as exc:
+            self._record_health(name, kind, False, 0, str(exc))
+            return []
 
     async def _fetch_feed(
         self,
@@ -441,23 +528,22 @@ class DomesticAINewsFetcher:
         local_tz: ZoneInfo | None = None,
     ) -> list[NewsItem]:
         local_tz = local_tz or ZoneInfo("Asia/Shanghai")
-        try:
-            response = await client.get(source["url"], follow_redirects=True)
-            response.raise_for_status()
-            feed = feedparser.parse(response.text)
-        except Exception:
-            return []
+        response = await client.get(source["url"], follow_redirects=True)
+        response.raise_for_status()
+        feed = feedparser.parse(response.text)
+        if feed.bozo and not feed.entries:
+            raise ValueError(str(feed.bozo_exception))
 
         items: list[NewsItem] = []
         for entry in feed.entries[: source.get("max_entries", 20)]:
-            published_at = self._parse_feed_date(entry) or datetime.now(timezone.utc)
+            link = entry.get("link", source["url"])
+            published_at = self._parse_feed_date(entry) or self._first_seen_at(link)
             if published_at < since or (until and published_at >= until):
                 continue
 
             title = self._clean_text(entry.get("title", ""))
-            link = entry.get("link", source["url"])
             summary = self._summary(self._entry_content(entry) or title)
-            if not self._is_relevant(title, summary, source.get("keywords"), source.get("name", "")):
+            if not self._source_accepts(source, title, summary):
                 continue
 
             items.append(self._make_item(
@@ -468,8 +554,104 @@ class DomesticAINewsFetcher:
                 published_at=published_at,
                 category=source.get("category"),
                 local_tz=local_tz,
+                leadership_category=source.get("leadership_category"),
+                source=source,
             ))
 
+        return items
+
+    async def _fetch_html(
+        self,
+        client: httpx.AsyncClient,
+        source: dict,
+        since: datetime,
+        until: datetime | None = None,
+        local_tz: ZoneInfo | None = None,
+    ) -> list[NewsItem]:
+        local_tz = local_tz or ZoneInfo("Asia/Shanghai")
+        response = await client.get(source["url"], follow_redirects=True)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+        item_selector = source.get("item_selector", "article")
+        items = []
+        for block in soup.select(item_selector)[: source.get("max_entries", 20)]:
+            link_el = block.select_one(source.get("link_selector", "a[href]"))
+            title_el = block.select_one(source.get("title_selector", "h2, h3, a[href]"))
+            if not link_el or not title_el:
+                continue
+            link = urljoin(str(response.url), link_el.get("href", ""))
+            title = self._clean_text(title_el.get_text(" ", strip=True))
+            summary_el = block.select_one(source.get("summary_selector", "p"))
+            summary = self._summary(
+                summary_el.get_text(" ", strip=True) if summary_el else block.get_text(" ", strip=True)
+            )
+            date_el = block.select_one(source.get("date_selector", "time"))
+            date_value = ""
+            if date_el:
+                date_value = date_el.get(source.get("date_attribute", "datetime"), "") or date_el.get_text(" ", strip=True)
+            published_at = self._parse_datetime(date_value) or self._first_seen_at(link)
+            if published_at < since or (until and published_at >= until):
+                continue
+            if not self._is_valid_result(title, link) or not self._source_accepts(source, title, summary):
+                continue
+            items.append(self._make_item(
+                title=title,
+                link=link,
+                summary=summary or title,
+                source_site=source.get("name", self._host(link)),
+                published_at=published_at,
+                category=source.get("category"),
+                local_tz=local_tz,
+                leadership_category=source.get("leadership_category"),
+                source=source,
+            ))
+        return items
+
+    async def _fetch_huggingface(
+        self,
+        client: httpx.AsyncClient,
+        source: dict,
+        since: datetime,
+        until: datetime | None = None,
+        local_tz: ZoneInfo | None = None,
+    ) -> list[NewsItem]:
+        local_tz = local_tz or ZoneInfo("Asia/Shanghai")
+        organization = source["organization"]
+        endpoint = source.get("url", "https://huggingface.co/api/models")
+        response = await client.get(
+            endpoint,
+            params={
+                "author": organization,
+                "sort": "lastModified",
+                "direction": -1,
+                "limit": source.get("max_entries", 20),
+                "full": "false",
+            },
+            follow_redirects=True,
+        )
+        response.raise_for_status()
+        items = []
+        for model in response.json():
+            model_id = model.get("modelId") or model.get("id")
+            if not model_id:
+                continue
+            link = f"https://huggingface.co/{model_id}"
+            published_at = self._parse_datetime(model.get("lastModified", "")) or self._first_seen_at(link)
+            if published_at < since or (until and published_at >= until):
+                continue
+            tags = ", ".join(model.get("tags", [])[:8])
+            title = f"{organization} 发布模型 {model_id.split('/')[-1]}"
+            summary = self._summary(f"Hugging Face model update. {tags}".strip())
+            items.append(self._make_item(
+                title=title,
+                link=link,
+                summary=summary,
+                source_site=source.get("name", f"{organization} Hugging Face"),
+                published_at=published_at,
+                category=source.get("category", "AI模型"),
+                local_tz=local_tz,
+                source=source,
+            ))
         return items
 
     async def _fetch_baidu_news(
@@ -481,11 +663,8 @@ class DomesticAINewsFetcher:
         local_tz: ZoneInfo | None = None,
     ) -> list[NewsItem]:
         local_tz = local_tz or ZoneInfo("Asia/Shanghai")
-        try:
-            response = await client.get(self._baidu_url(source["query"]), follow_redirects=True)
-            response.raise_for_status()
-        except Exception:
-            return []
+        response = await client.get(self._baidu_url(source["query"]), follow_redirects=True)
+        response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
         items: list[NewsItem] = []
@@ -496,13 +675,18 @@ class DomesticAINewsFetcher:
             published_at = (
                 self._parse_cn_time(result["date"])
                 or self._parse_cn_time(result["summary"])
-                or datetime.now(timezone.utc)
+                or self._first_seen_at(result["link"])
             )
             if published_at < since or (until and published_at >= until):
                 continue
 
             summary = self._summary(result["summary"] or result["title"])
-            if not self._is_relevant(result["title"], summary, source.get("keywords"), source.get("name", "")):
+            if source.get("local_focus") == "nantong" and not self._is_nantong_ai_result(
+                result["title"],
+                summary,
+            ):
+                continue
+            if not self._source_accepts(source, result["title"], summary):
                 continue
             items.append(self._make_item(
                 title=result["title"],
@@ -512,6 +696,8 @@ class DomesticAINewsFetcher:
                 published_at=published_at,
                 category=source.get("category"),
                 local_tz=local_tz,
+                leadership_category=source.get("leadership_category"),
+                source=source,
             ))
 
         return items
@@ -525,11 +711,14 @@ class DomesticAINewsFetcher:
         published_at: datetime,
         category: str | None,
         local_tz: ZoneInfo | None = None,
+        leadership_category: str | None = None,
+        source: dict | None = None,
     ) -> NewsItem:
+        source = source or {}
         local_tz = local_tz or ZoneInfo("Asia/Shanghai")
         local_published_at = published_at.astimezone(local_tz)
         news_type = category or self._classify(title, summary)
-        leadership_category = self._leadership_category(news_type, title, summary, source_site)
+        leadership_category = leadership_category or self._leadership_category(news_type, title, summary, source_site)
         return NewsItem(
             id=hashlib.sha1(f"{title}|{link}".encode("utf-8")).hexdigest()[:16],
             date=local_published_at.date().isoformat(),
@@ -540,6 +729,10 @@ class DomesticAINewsFetcher:
             source_site=source_site,
             published_at=local_published_at.isoformat(),
             leadership_category=leadership_category,
+            organization=source.get("organization", source_site),
+            language=source.get("language", self._detect_language(title, summary)),
+            source_tier=source.get("source_tier", "official" if source.get("official") else "media"),
+            source_channel=source.get("channel", source.get("kind", "feed")),
         )
 
     @staticmethod
@@ -625,6 +818,23 @@ class DomesticAINewsFetcher:
         return dt
 
     @staticmethod
+    def _parse_datetime(value: str) -> datetime | None:
+        text = str(value or "").strip()
+        if not text:
+            return None
+        try:
+            normalized = text.replace("Z", "+00:00")
+            parsed = datetime.fromisoformat(normalized)
+            return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+        try:
+            parsed = parsedate_to_datetime(text)
+            return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            return DomesticAINewsFetcher._parse_cn_time(text)
+
+    @staticmethod
     def _entry_content(entry: dict) -> str:
         if entry.get("summary"):
             return DomesticAINewsFetcher._clean_text(entry.summary)
@@ -638,6 +848,18 @@ class DomesticAINewsFetcher:
     def _clean_text(value: str) -> str:
         text = BeautifulSoup(value or "", "html.parser").get_text(" ", strip=True)
         return re.sub(r"\s+", " ", text).strip()
+
+    @staticmethod
+    def _detect_language(title: str, summary: str) -> str:
+        text = f"{title}{summary}"
+        chinese = len(re.findall(r"[\u4e00-\u9fff]", text))
+        latin = len(re.findall(r"[A-Za-z]", text))
+        return "zh" if chinese >= max(4, latin // 5) else "en"
+
+    def _source_accepts(self, source: dict, title: str, summary: str) -> bool:
+        if source.get("official") and source.get("ai_focused", True):
+            return True
+        return self._is_relevant(title, summary, source.get("keywords"), source.get("name", ""))
 
     @classmethod
     def _summary(cls, value: str, max_chars: int = 320) -> str:
@@ -686,15 +908,27 @@ class DomesticAINewsFetcher:
             return "运营商与央国企动态"
         if news_type == "算力芯片" or any(keyword in text for keyword in ["算力", "数据中心", "云计算", "云服务", "云基础设施", "云网", "gpu", "nvidia", "昇腾", "边缘ai", "液冷"]):
             return "算力、数据中心与云基础设施"
-        if news_type in {"AI模型", "AI Agent", "AI技术", "AI编程"}:
-            return "AI模型与智能体技术"
-        if news_type in {"机器人", "智能驾驶", "AI硬件"}:
-            return "AI终端、机器人与硬件"
         if news_type == "AI安全" or any(keyword in text for keyword in ["安全", "合规", "监管", "对齐", "deepfake", "版权"]):
             return "风险、安全与合规"
         if any(keyword in text for keyword in ["融资", "估值", "ipo", "资本", "基金", "投资", "市场"]):
             return "投融资与竞争格局"
-        return "行业应用与商业化"
+        return "AI技术与产业应用"
+
+    @staticmethod
+    def _is_nantong_ai_result(title: str, summary: str) -> bool:
+        text = f"{title}\n{summary}".lower()
+        has_nantong_context = any(term.lower() in text for term in NANTONG_TERMS)
+        has_ai_context = any(
+            DomesticAINewsFetcher._keyword_matches(text, term)
+            for term in NANTONG_AI_TERMS
+        )
+        return has_nantong_context and has_ai_context
+
+    @staticmethod
+    def normalize_leadership_category(category: str) -> str:
+        if category in LEGACY_LEADERSHIP_CATEGORIES:
+            return "AI技术与产业应用"
+        return category or "AI技术与产业应用"
 
     @staticmethod
     def _is_relevant(
@@ -772,15 +1006,149 @@ class DomesticAINewsFetcher:
         hostname = urlparse(url).hostname
         return hostname.replace("www.", "") if hostname else ""
 
+    @staticmethod
+    def _canonical_url(url: str) -> str:
+        parsed = urlparse(url.strip())
+        ignored = {"utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "ref", "source"}
+        query = urlencode([
+            (key, value)
+            for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+            if key.lower() not in ignored
+        ])
+        path = re.sub(r"/+$", "", parsed.path) or "/"
+        return urlunparse((parsed.scheme.lower(), parsed.netloc.lower(), path, "", query, ""))
+
+    @staticmethod
+    def _title_fingerprint(title: str) -> str:
+        normalized = re.sub(r"[^a-z0-9\u4e00-\u9fff]+", "", title.lower())
+        return hashlib.sha1(normalized.encode("utf-8")).hexdigest()[:20]
+
+    def _first_seen_at(self, url: str) -> datetime:
+        key = self._canonical_url(url)
+        saved = self.first_seen.get(key)
+        if saved:
+            parsed = self._parse_datetime(saved)
+            if parsed:
+                return parsed
+        now = datetime.now(timezone.utc)
+        self.first_seen[key] = now.isoformat()
+        return now
+
+    @staticmethod
+    def _load_json(path: Path, default):
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError, TypeError):
+            return default
+
+    def _save_state(self) -> None:
+        self.state_dir.mkdir(parents=True, exist_ok=True)
+        configured_names = {
+            source.get("name", source.get("url", "unknown"))
+            for source in self._configured_sources()
+            if source.get("enabled", True)
+        }
+        self.health["sources"] = {
+            name: value
+            for name, value in self.health.get("sources", {}).items()
+            if name in configured_names
+        }
+        self.health["generated_at"] = datetime.now(timezone.utc).isoformat()
+        self.health_path.write_text(
+            json.dumps(self.health, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        self.first_seen_path.write_text(
+            json.dumps(self.first_seen, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+    def _record_health(
+        self,
+        name: str,
+        kind: str,
+        success: bool,
+        accepted_count: int,
+        error: str = "",
+    ) -> None:
+        sources = self.health.setdefault("sources", {})
+        previous = sources.get(name, {})
+        now = datetime.now(timezone.utc).isoformat()
+        sources[name] = {
+            "kind": kind,
+            "status": "ok" if success else "error",
+            "last_checked_at": now,
+            "last_success_at": now if success else previous.get("last_success_at", ""),
+            "accepted_count": accepted_count,
+            "candidate_count": accepted_count,
+            "consecutive_failures": 0 if success else previous.get("consecutive_failures", 0) + 1,
+            "error": "" if success else (error or "unknown error")[:300],
+        }
+
+    def health_summary(self) -> dict:
+        configured = [source for source in self._configured_sources() if source.get("enabled", True)]
+        official_names = {
+            source.get("name", source.get("url", "unknown"))
+            for source in configured
+            if source.get("official")
+        }
+        health_sources = self.health.get("sources", {})
+        failing = [
+            name
+            for name in official_names
+            if health_sources.get(name, {}).get("status") == "error"
+        ]
+        alert_threshold = int(self.config.get("health_alert_threshold", 3))
+        alerts = [
+            name
+            for name in official_names
+            if health_sources.get(name, {}).get("consecutive_failures", 0) >= alert_threshold
+        ]
+        return {
+            "generated_at": self.health.get("generated_at", ""),
+            "official_total": len(official_names),
+            "official_checked": sum(1 for name in official_names if name in health_sources),
+            "official_failing": len(failing),
+            "failing_sources": sorted(failing),
+            "alert_sources": sorted(alerts),
+            "sources": health_sources,
+        }
+
+    def _apply_tier_limits(self, items: list[NewsItem]) -> list[NewsItem]:
+        limits = self.config.get("tier_limits", {})
+        default_limit = int(self.config.get("fetch_limit", 120))
+        counts: dict[str, int] = {}
+        selected = []
+        for item in items:
+            tier = item.source_tier or "media"
+            limit = int(limits.get(tier, default_limit))
+            if counts.get(tier, 0) >= limit:
+                continue
+            counts[tier] = counts.get(tier, 0) + 1
+            selected.append(item)
+            if len(selected) >= default_limit:
+                break
+        return selected
+
     @classmethod
     def _dedupe(cls, items: list[NewsItem]) -> list[NewsItem]:
-        seen = set()
+        seen_urls = set()
+        seen_titles = set()
         unique = []
-        for item in sorted(items, key=lambda x: x.published_at, reverse=True):
-            key = item.detail_link.rstrip("/")
-            if key in seen:
+        tier_priority = {"official": 0, "media": 1, "community": 2}
+        for item in sorted(
+            items,
+            key=lambda x: (
+                tier_priority.get(x.source_tier, 9),
+                -int(datetime.fromisoformat(x.published_at).timestamp()),
+            ),
+        ):
+            url_key = cls._canonical_url(item.detail_link)
+            title_key = cls._title_fingerprint(item.title)
+            if url_key in seen_urls or title_key in seen_titles:
                 continue
-            seen.add(key)
+            seen_urls.add(url_key)
+            seen_titles.add(title_key)
             unique.append(item)
         return cls._sort_for_brief(unique)
 

@@ -1,11 +1,14 @@
 import asyncio
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import httpx
 from bs4 import BeautifulSoup
 
 from src.domestic_ai_news import DomesticAINewsFetcher, NewsItem
+from src.main import _mark_notification_sent, _notification_sent
+from src.notifier import build_wechat_markdown
 from src.page_generator import PageGenerator
 
 
@@ -160,6 +163,69 @@ def test_leadership_category_maps_telecom_and_infra_topics(tmp_path):
     assert fetcher._leadership_category("运营商", "中国电信发布政企 AI 平台", "", "中国电信") == "运营商与央国企动态"
     assert fetcher._leadership_category("算力芯片", "液冷数据中心支撑 AI 算力", "", "测试") == "算力、数据中心与云基础设施"
     assert fetcher._leadership_category("AI Agent", "Agent 工具实践", "", "V2EX") == "技术社区观察"
+    assert fetcher._leadership_category("AI模型", "发布新模型", "", "测试") == "AI技术与产业应用"
+    assert fetcher._leadership_category("机器人", "人形机器人落地工厂", "", "测试") == "AI技术与产业应用"
+
+
+def test_nantong_focus_requires_local_and_ai_context(tmp_path):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"feeds": [], "searches": []}), encoding="utf-8")
+    fetcher = DomesticAINewsFetcher(config_path)
+
+    assert fetcher._is_nantong_ai_result(
+        "南通推动人工智能产业发展",
+        "崇川区建设大模型创新应用中心。",
+    )
+    assert fetcher._is_nantong_ai_result(
+        "媒体转载：海门智能制造提速",
+        "当地企业引入 AI 视觉质检。",
+    )
+    assert not fetcher._is_nantong_ai_result("南通举办文旅消费活动", "多个景区推出优惠。")
+    assert not fetcher._is_nantong_ai_result("人工智能产业政策发布", "推动大模型产业发展。")
+
+
+def test_legacy_leadership_categories_are_merged():
+    for category in [
+        "AI模型与智能体技术",
+        "行业应用与商业化",
+        "AI终端、机器人与硬件",
+    ]:
+        assert DomesticAINewsFetcher.normalize_leadership_category(category) == "AI技术与产业应用"
+
+    assert DomesticAINewsFetcher.normalize_leadership_category("政策与监管") == "政策与监管"
+
+
+def test_nantong_category_priority():
+    items = [
+        NewsItem("1", "2026-06-15", "运营商", "运营商", "", "https://example.com/1", "测试", "2026-06-15T10:00:00+08:00", "运营商与央国企动态"),
+        NewsItem("2", "2026-06-15", "AI资讯", "南通", "", "https://example.com/2", "测试", "2026-06-15T09:00:00+08:00", "南通市官方AI动态"),
+        NewsItem("3", "2026-06-15", "政策", "政策", "", "https://example.com/3", "测试", "2026-06-15T08:00:00+08:00", "政策与监管"),
+    ]
+
+    assert [item.leadership_category for item in DomesticAINewsFetcher._sort_for_brief(items)] == [
+        "政策与监管",
+        "南通市官方AI动态",
+        "运营商与央国企动态",
+    ]
+
+
+def test_wechat_markdown_always_reports_nantong_status():
+    without_nantong = build_wechat_markdown([], "https://example.com", "2026-06-15")
+    assert "南通动态：<font color=\"comment\">0 条</font>，今日暂无南通市 AI 动态" in without_nantong
+
+    item = NewsItem(
+        "1",
+        "2026-06-15",
+        "AI资讯",
+        "南通发布人工智能产业新举措",
+        "",
+        "https://example.com/1",
+        "南通日报",
+        "2026-06-15T09:00:00+08:00",
+        "南通市官方AI动态",
+    )
+    with_nantong = build_wechat_markdown([item], "https://example.com", "2026-06-15")
+    assert "南通动态：<font color=\"comment\">1 条</font>，南通发布人工智能产业新举措" in with_nantong
 
 
 def test_extracts_baidu_news_result(tmp_path):
@@ -218,7 +284,7 @@ def test_page_generator_merges_daily_archive(tmp_path):
         "https://example.com/2",
         "测试",
         "2026-05-17T10:00:00+08:00",
-        "AI模型与智能体技术",
+        "AI技术与产业应用",
     )
 
     generator.write_daily([first])
@@ -229,3 +295,131 @@ def test_page_generator_merges_daily_archive(tmp_path):
     assert archive["count"] == 2
     assert index["latest_date"] == "2026-05-17"
     assert index["dates"][0]["count"] == 2
+
+
+def test_html_official_source_parses_entries(tmp_path):
+    now = datetime.now(timezone.utc)
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"sources": []}), encoding="utf-8")
+    source = {
+        "name": "Official AI",
+        "kind": "html",
+        "url": "https://example.com/news",
+        "official": True,
+        "ai_focused": True,
+        "organization": "Example AI",
+        "language": "en",
+        "item_selector": "article",
+    }
+    html = f"""
+    <article>
+      <h2>New multimodal model</h2>
+      <a href="/news/model">Read</a>
+      <p>A model and API update.</p>
+      <time datetime="{now.isoformat()}"></time>
+    </article>
+    """
+
+    async def run():
+        fetcher = DomesticAINewsFetcher(config_path)
+        transport = httpx.MockTransport(lambda request: httpx.Response(200, text=html))
+        async with httpx.AsyncClient(transport=transport) as client:
+            return await fetcher._fetch_html(client, source, now - timedelta(hours=1))
+
+    items = asyncio.run(run())
+    assert len(items) == 1
+    assert items[0].detail_link == "https://example.com/news/model"
+    assert items[0].source_tier == "official"
+    assert items[0].language == "en"
+
+
+def test_huggingface_adapter_builds_official_model_item(tmp_path):
+    now = datetime.now(timezone.utc)
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"sources": []}), encoding="utf-8")
+    source = {
+        "name": "Qwen Hugging Face",
+        "kind": "huggingface_api",
+        "organization": "Qwen",
+        "official": True,
+        "source_tier": "official",
+        "channel": "model-release",
+    }
+
+    async def run():
+        payload = [{"modelId": "Qwen/Qwen-Test", "lastModified": now.isoformat(), "tags": ["text-generation"]}]
+        fetcher = DomesticAINewsFetcher(config_path)
+        transport = httpx.MockTransport(lambda request: httpx.Response(200, json=payload))
+        async with httpx.AsyncClient(transport=transport) as client:
+            return await fetcher._fetch_huggingface(client, source, now - timedelta(hours=1))
+
+    items = asyncio.run(run())
+    assert items[0].title == "Qwen 发布模型 Qwen-Test"
+    assert items[0].source_channel == "model-release"
+    assert items[0].type == "AI模型"
+
+
+def test_dedupe_prefers_official_source_and_normalizes_tracking_urls():
+    media = NewsItem(
+        "media", "2026-06-15", "AI模型", "OpenAI releases Model X", "",
+        "https://news.example/model-x?utm_source=test", "Media",
+        "2026-06-15T12:00:00+00:00", source_tier="media",
+    )
+    official = NewsItem(
+        "official", "2026-06-15", "AI模型", "OpenAI releases Model X", "",
+        "https://openai.com/model-x", "OpenAI",
+        "2026-06-15T10:00:00+00:00", source_tier="official",
+    )
+
+    assert DomesticAINewsFetcher._dedupe([media, official]) == [official]
+    assert DomesticAINewsFetcher._canonical_url("https://x.test/a/?utm_source=y") == "https://x.test/a"
+
+
+def test_first_seen_date_is_persisted(tmp_path):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"sources": []}), encoding="utf-8")
+    first = DomesticAINewsFetcher(config_path)
+    first_seen = first._first_seen_at("https://example.com/undated")
+    first._save_state()
+
+    second = DomesticAINewsFetcher(config_path)
+    assert second._first_seen_at("https://example.com/undated") == first_seen
+
+
+def test_health_summary_flags_consecutive_official_failures(tmp_path):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({
+        "health_alert_threshold": 2,
+        "sources": [{"name": "Official", "kind": "feed", "url": "https://example.com", "official": True}],
+    }), encoding="utf-8")
+    fetcher = DomesticAINewsFetcher(config_path)
+    fetcher._record_health("Official", "feed", False, 0, "broken")
+    fetcher._record_health("Official", "feed", False, 0, "broken")
+
+    summary = fetcher.health_summary()
+    assert summary["official_failing"] == 1
+    assert summary["alert_sources"] == ["Official"]
+
+
+def test_static_ui_and_schedule_include_new_contracts():
+    root = Path(__file__).parents[1]
+    script = (root / "docs/assets/js/ai-news.js").read_text(encoding="utf-8")
+    today = (root / "docs/ai-news.html").read_text(encoding="utf-8")
+    cron = (root / "deploy/ai-daily-brief.cron").read_text(encoding="utf-8")
+    runner = (root / "scripts/run_daily.sh").read_text(encoding="utf-8")
+
+    assert "aria-expanded" in script
+    assert "category-nav-list" in today
+    assert "source-health" in today
+    assert "0 */6 * * *" in cron
+    assert "--days 2" in runner
+
+
+def test_daily_notification_state_prevents_duplicate_send(tmp_path):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text("{}", encoding="utf-8")
+    report_date = datetime(2026, 6, 15).date()
+
+    assert not _notification_sent(report_date, str(config_path))
+    _mark_notification_sent(report_date, str(config_path))
+    assert _notification_sent(report_date, str(config_path))

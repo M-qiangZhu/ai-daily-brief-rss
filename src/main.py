@@ -7,6 +7,7 @@ import asyncio
 import json
 import os
 from datetime import date, datetime
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from .domestic_ai_news import DomesticAINewsFetcher, dump_payload
@@ -46,16 +47,30 @@ async def build(
         if days is not None
         else await fetcher.fetch_date(report_date, tz_name=tz_name)
     )
-    outputs = PageGenerator(docs_dir).write_daily(items)
+    health = fetcher.health_summary()
+    public_health = {
+        key: value
+        for key, value in health.items()
+        if key not in {"sources", "failing_sources", "alert_sources"}
+    }
+    outputs = PageGenerator(docs_dir).write_daily(items, public_health)
+    report_items = [item for item in items if item.date == report_date.isoformat()]
     page_url = public_url.rstrip("/") + "/ai-news.html" if public_url else ""
-    brief_markdown = build_wechat_markdown(items, page_url, report_date.isoformat())
+    brief_markdown = build_wechat_markdown(
+        report_items,
+        page_url,
+        report_date.isoformat(),
+    )
     notification = {"enabled": False}
     webhook_url = os.environ.get("WECHAT_WEBHOOK_URL", "").strip()
     if notify:
         if not webhook_url:
             notification = {"enabled": True, "sent": False, "reason": "WECHAT_WEBHOOK_URL is not set"}
+        elif _notification_sent(report_date, config):
+            notification = {"enabled": True, "sent": False, "reason": "daily notification already sent"}
         else:
             notification = {"enabled": True, "sent": True, "response": await send_wechat_markdown(webhook_url, brief_markdown)}
+            _mark_notification_sent(report_date, config)
     return {
         "success": True,
         "total": len(items),
@@ -65,7 +80,33 @@ async def build(
         "page_url": page_url,
         "brief_markdown": brief_markdown,
         "notification": notification,
+        "source_health": health,
     }
+
+
+def _notification_state_path(config: str) -> Path:
+    config_path = Path(config)
+    return config_path.parent / "state" / "notifications.json"
+
+
+def _notification_sent(report_date: date, config: str) -> bool:
+    path = _notification_state_path(config)
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return report_date.isoformat() in payload.get("sent_dates", [])
+
+
+def _mark_notification_sent(report_date: date, config: str) -> None:
+    path = _notification_state_path(config)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        payload = {"sent_dates": []}
+    dates = sorted(set(payload.get("sent_dates", []) + [report_date.isoformat()]))[-60:]
+    path.write_text(json.dumps({"sent_dates": dates}, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def main() -> None:

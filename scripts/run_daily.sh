@@ -22,6 +22,7 @@ fi
 mkdir -p logs
 
 flock -n "$LOCK_FILE" "$UV_BIN" run ai-daily-brief \
+  --days 2 \
   --timezone Asia/Shanghai \
   --public-url "$PUBLIC_URL" \
   ${WECHAT_WEBHOOK_URL:+--notify} \

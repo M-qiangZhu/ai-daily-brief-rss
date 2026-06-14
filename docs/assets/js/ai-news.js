@@ -7,6 +7,8 @@
     loadedByDate: {},
     dates: [],
     activeDate: '',
+    activeCategory: '',
+    sourceHealth: {},
     page: document.body.getAttribute('data-page') || 'today'
   };
 
@@ -28,14 +30,29 @@
   };
   var categoryPriority = {
     '政策与监管': 0,
-    '运营商与央国企动态': 1,
-    '算力、数据中心与云基础设施': 2,
-    'AI模型与智能体技术': 3,
-    '行业应用与商业化': 4,
-    'AI终端、机器人与硬件': 5,
-    '投融资与竞争格局': 6,
-    '风险、安全与合规': 7,
-    '技术社区观察': 8
+    '南通市官方AI动态': 1,
+    '运营商与央国企动态': 2,
+    '算力、数据中心与云基础设施': 3,
+    'AI技术与产业应用': 4,
+    '投融资与竞争格局': 5,
+    '风险、安全与合规': 6,
+    '技术社区观察': 7
+  };
+  var legacyCategoryMap = {
+    'AI模型与智能体技术': 'AI技术与产业应用',
+    '行业应用与商业化': 'AI技术与产业应用',
+    'AI终端、机器人与硬件': 'AI技术与产业应用'
+  };
+  var alwaysVisibleCategories = ['南通市官方AI动态'];
+  var categoryAnchors = {
+    '政策与监管': 'category-policy',
+    '南通市官方AI动态': 'category-nantong',
+    '运营商与央国企动态': 'category-telecom',
+    '算力、数据中心与云基础设施': 'category-infrastructure',
+    'AI技术与产业应用': 'category-ai-application',
+    '投融资与竞争格局': 'category-investment',
+    '风险、安全与合规': 'category-risk',
+    '技术社区观察': 'category-community'
   };
 
   function byId(id) {
@@ -113,6 +130,24 @@
     return new URLSearchParams(window.location.search).get('date') || '';
   }
 
+  function normalizeCategory(category) {
+    return legacyCategoryMap[category] || category || 'AI技术与产业应用';
+  }
+
+  function normalizeItems(items) {
+    return (items || []).map(function (item) {
+      item.leadership_category = normalizeCategory(item.leadership_category);
+      return item;
+    });
+  }
+
+  function categoryAnchor(category) {
+    return categoryAnchors[category] || 'category-' + String(category || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
   function itemsForActiveDate() {
     return (state.loadedByDate[state.activeDate] || []).slice().sort(compareItems);
   }
@@ -130,9 +165,12 @@
   function groupItems(items) {
     var groups = {};
     items.forEach(function (item) {
-      var category = item.leadership_category || '行业应用与商业化';
+      var category = normalizeCategory(item.leadership_category);
       if (!groups[category]) groups[category] = [];
       groups[category].push(item);
+    });
+    alwaysVisibleCategories.forEach(function (category) {
+      if (!groups[category]) groups[category] = [];
     });
     return Object.keys(groups).sort(function (a, b) {
       var priorityA = categoryPriority[a] == null ? 99 : categoryPriority[a];
@@ -150,7 +188,7 @@
       });
       if (found) return found;
     }
-    return items[0];
+    return null;
   }
 
   function shortTitle(item) {
@@ -165,11 +203,12 @@
     var top = shortTitle(items[0]);
     var templates = {
       '政策与监管': '政策和监管信号优先关注，今日共 ' + count + ' 条，重点是“' + top + '”。',
+      '南通市官方AI动态': count
+        ? '南通本地 AI 动态共 ' + count + ' 条，重点是“' + top + '”。'
+        : '已完成南通市级、区县政府及媒体转载监控，今日暂无新增 AI 动态。',
       '运营商与央国企动态': '央国企与运营商动态共 ' + count + ' 条，可关注政企协同、云网融合和行业客户机会。',
       '算力、数据中心与云基础设施': '算力、数据中心和云基础设施共 ' + count + ' 条，反映 AI 基建投入、国产算力和边缘能力进展。',
-      'AI模型与智能体技术': '模型、智能体和关键技术共 ' + count + ' 条，适合跟踪能力跃迁及可产品化方向。',
-      '行业应用与商业化': '行业应用和商业化共 ' + count + ' 条，关注 AI 在垂直场景中的落地节奏。',
-      'AI终端、机器人与硬件': '终端、机器人与硬件共 ' + count + ' 条，可观察 AI 从云端走向设备和现场的趋势。',
+      'AI技术与产业应用': 'AI 模型、智能体、行业应用、终端与机器人共 ' + count + ' 条，关注能力演进和产业落地。',
       '投融资与竞争格局': '投融资和竞争格局共 ' + count + ' 条，辅助判断产业热度和资本流向。',
       '风险、安全与合规': '风险、安全与合规共 ' + count + ' 条，适合纳入治理、风控和合规跟踪。',
       '技术社区观察': '技术社区观察共 ' + count + ' 条，主要用于捕捉开发者工具和一线实践反馈。'
@@ -185,14 +224,18 @@
       return;
     }
     var policy = firstItem(items, ['政策与监管']);
+    var nantong = firstItem(items.filter(function (item) {
+      return normalizeCategory(item.leadership_category) === '南通市官方AI动态';
+    }), ['南通市官方AI动态']);
     var infra = firstItem(items, ['运营商与央国企动态', '算力、数据中心与云基础设施']);
-    var tech = firstItem(items, ['AI模型与智能体技术', '行业应用与商业化']);
+    var tech = firstItem(items, ['AI技术与产业应用']);
     var categories = groupItems(items);
     var sourceCount = unique(items.map(function (item) { return item.source_site; })).length;
     var bullets = [
       { label: '政策信号', text: policy ? shortTitle(policy) : '今日暂无明确政策信号' },
+      { label: '南通关注', text: nantong ? shortTitle(nantong) : '今日暂无南通市 AI 动态' },
       { label: '电信关注', text: infra ? shortTitle(infra) : '今日暂无运营商或算力基础设施重点' },
-      { label: '技术趋势', text: tech ? shortTitle(tech) : '今日暂无模型或智能体重点' }
+      { label: '技术趋势', text: tech ? shortTitle(tech) : '今日暂无 AI 技术与产业应用重点' }
     ];
     panel.innerHTML = [
       '<div class="leadership-head">',
@@ -216,11 +259,43 @@
     if (!wrap) return;
     var groups = groupItems(items);
     wrap.innerHTML = groups.map(function (group) {
-      return '<article class="category-brief">' +
+      var anchor = categoryAnchor(group.category);
+      var expanded = state.activeCategory === group.category;
+      return '<button class="category-brief' + (expanded ? ' active' : '') + '" type="button" data-category="' +
+        escapeHtml(group.category) + '" aria-expanded="' + expanded + '" aria-controls="' + escapeHtml(anchor) + '-panel">' +
         '<div><h3>' + escapeHtml(group.category) + '</h3><p>' + escapeHtml(categorySummary(group.category, group.items)) + '</p></div>' +
-        '<strong>' + group.items.length + '</strong>' +
-        '</article>';
+        '<span class="category-brief-side"><strong>' + group.items.length + '</strong><i aria-hidden="true"></i></span>' +
+        '</button>';
     }).join('');
+    renderCategoryNav(groups);
+  }
+
+  function renderCategoryNav(groups) {
+    var wrap = byId('category-nav-list');
+    if (!wrap) return;
+    wrap.innerHTML = groups.map(function (group) {
+      var active = state.activeCategory === group.category;
+      return '<button class="category-nav-chip' + (active ? ' active' : '') + '" type="button" data-category="' +
+        escapeHtml(group.category) + '" aria-expanded="' + active + '">' +
+        '<span>' + escapeHtml(group.category) + '</span><strong>' + group.items.length + '</strong></button>';
+    }).join('');
+  }
+
+  function renderSourceHealth() {
+    var wrap = byId('source-health');
+    if (!wrap) return;
+    var health = state.sourceHealth || {};
+    if (!health.official_total) {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+    var failing = Number(health.official_failing || 0);
+    wrap.className = 'source-health' + (failing ? ' source-health--warning' : '');
+    wrap.innerHTML = '<span class="health-dot" aria-hidden="true"></span>' +
+      '<strong>官方信源 ' + escapeHtml(health.official_checked || 0) + '/' + escapeHtml(health.official_total) + '</strong>' +
+      '<span>' + (failing ? escapeHtml(failing) + ' 个源暂时异常' : '运行正常') + '</span>' +
+      '<span>每 6 小时更新</span>';
   }
 
   function renderArchiveDates() {
@@ -245,7 +320,7 @@
         return response.json();
       })
       .then(function (payload) {
-        var items = payload.items || [];
+        var items = normalizeItems(payload.items || []);
         state.loadedByDate[date] = items;
         return items;
       });
@@ -253,6 +328,7 @@
 
   function setActiveDate(date, pushUrl) {
     state.activeDate = date;
+    state.activeCategory = '';
     byId('active-date').textContent = formatDateLabel(date);
     if (pushUrl && state.page === 'archive') {
       window.history.replaceState(null, '', 'ai-news-archive.html?date=' + encodeURIComponent(date));
@@ -261,16 +337,32 @@
     var brief = byId('brief-line');
     if (brief) brief.textContent = date ? date + ' · 正在读取归档' : '暂无归档数据';
     loadDateItems(date)
-      .then(render)
+      .then(function () { render(true); })
       .catch(function () {
         if (brief) brief.textContent = date + ' · 归档数据加载失败';
         state.loadedByDate[date] = [];
-        render();
+        render(true);
       });
   }
 
-  function render() {
+  function categoryFromHash(groups) {
+    var hash = window.location.hash.replace(/^#/, '');
+    var found = groups.find(function (group) {
+      return categoryAnchor(group.category) === hash;
+    });
+    return found ? found.category : '';
+  }
+
+  function defaultCategory(groups) {
+    var fromHash = categoryFromHash(groups);
+    if (fromHash) return fromHash;
+    var nonEmpty = groups.find(function (group) { return group.items.length > 0; });
+    return nonEmpty ? nonEmpty.category : (groups[0] ? groups[0].category : '');
+  }
+
+  function render(resetCategory) {
     var items = itemsForActiveDate();
+    var groups = groupItems(items);
     var board = byId('news-board');
     var empty = byId('empty-state');
     var brief = byId('brief-line');
@@ -279,18 +371,25 @@
       brief.textContent = state.activeDate + ' · 已同步 ' + items.length + ' 条 AI 资讯';
     }
     empty.hidden = items.length > 0;
+    if (resetCategory || !groups.some(function (group) { return group.category === state.activeCategory; })) {
+      state.activeCategory = defaultCategory(groups);
+    }
     renderLeadershipPanel(items);
     renderCategoryOverview(items);
+    renderSourceHealth();
 
-    board.innerHTML = groupItems(items).map(function (group) {
+    board.innerHTML = groups.map(function (group) {
+      var anchor = categoryAnchor(group.category);
+      var expanded = state.activeCategory === group.category;
       return [
-        '<section class="category-section">',
-        '  <header class="category-section-head">',
+        '<section class="category-section' + (expanded ? ' expanded' : '') + '" id="' + escapeHtml(anchor) + '">',
+        '  <button class="category-section-head" type="button" data-category="' + escapeHtml(group.category) +
+          '" aria-expanded="' + expanded + '" aria-controls="' + escapeHtml(anchor) + '-panel">',
         '    <div><h2>' + escapeHtml(group.category) + '</h2><p>' + escapeHtml(categorySummary(group.category, group.items)) + '</p></div>',
-        '    <strong>' + group.items.length + '</strong>',
-        '  </header>',
-        '  <div class="category-news-grid">',
-        group.items.map(function (item, index) {
+        '    <span class="section-head-side"><strong>' + group.items.length + '</strong><i aria-hidden="true"></i></span>',
+        '  </button>',
+        '  <div class="category-news-grid" id="' + escapeHtml(anchor) + '-panel"' + (expanded ? '' : ' hidden') + '>',
+        group.items.length ? group.items.map(function (item, index) {
           var serial = String(index + 1).padStart(2, '0');
           var source = item.source_site || '未知来源';
           var sourceClass = 'source-pill ' + sourceVariant(source);
@@ -300,6 +399,8 @@
             '  <div class="card-body">',
             '    <div class="card-meta">',
             '      <span class="' + sourceClass + '">' + escapeHtml(source) + '</span>',
+            item.source_tier === 'official' ? '      <span class="official-pill">官方</span>' : '',
+            item.language === 'en' ? '      <span class="language-pill">EN</span>' : '',
             '      <span class="type-pill">' + escapeHtml(item.type || 'AI资讯') + '</span>',
             '      <time datetime="' + escapeHtml(item.date) + '">' + escapeHtml(item.date) + '</time>',
             '    </div>',
@@ -309,11 +410,46 @@
             '  </div>',
             '</article>'
           ].join('');
-        }).join(''),
+        }).join('') : '<div class="category-empty">今日暂无新增</div>',
         '  </div>',
         '</section>'
       ].join('');
     }).join('');
+  }
+
+  function toggleCategory(category, shouldScroll, updateHash) {
+    var next = state.activeCategory === category ? '' : category;
+    state.activeCategory = next;
+    renderCategoryOverview(itemsForActiveDate());
+    var sections = byId('news-board').querySelectorAll('.category-section');
+    sections.forEach(function (section) {
+      var button = section.querySelector('[data-category]');
+      var panel = section.querySelector('.category-news-grid');
+      var expanded = Boolean(button && button.getAttribute('data-category') === next);
+      section.classList.toggle('expanded', expanded);
+      if (button) button.setAttribute('aria-expanded', String(expanded));
+      if (panel) panel.hidden = !expanded;
+    });
+    if (updateHash) {
+      var base = window.location.pathname + window.location.search;
+      window.history.replaceState(null, '', next ? base + '#' + categoryAnchor(next) : base);
+    }
+    if (next && shouldScroll) {
+      var target = byId(categoryAnchor(next));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  function bindCategories() {
+    document.addEventListener('click', function (event) {
+      var button = event.target.closest('[data-category]');
+      if (!button) return;
+      toggleCategory(button.getAttribute('data-category'), true, true);
+    });
+    window.addEventListener('hashchange', function () {
+      var category = categoryFromHash(groupItems(itemsForActiveDate()));
+      if (category && category !== state.activeCategory) toggleCategory(category, true, false);
+    });
   }
 
   function bindArchive() {
@@ -336,13 +472,14 @@
       : data.latest_date || state.dates[0] || '';
 
     bindArchive();
+    bindCategories();
     bindThemeToggle();
     applyTheme(preferredTheme());
     setActiveDate(state.activeDate, state.page === 'archive');
   }
 
   function initLegacyPayload(data) {
-    var items = (data.items || []).slice().sort(compareItems);
+    var items = normalizeItems(data.items || []).slice().sort(compareItems);
     state.allItems = items;
     state.dates = unique(items.map(function (item) { return item.date; }));
     state.archiveIndex = state.dates.map(function (date) {
@@ -357,12 +494,19 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     applyTheme(preferredTheme());
-    fetch('archive/index.json', { cache: 'no-store' })
-      .then(function (response) {
+    Promise.all([
+      fetch('archive/index.json', { cache: 'no-store' }).then(function (response) {
         if (!response.ok) throw new Error('HTTP ' + response.status);
         return response.json();
+      }),
+      fetch('assets/data/source-health.json', { cache: 'no-store' })
+        .then(function (response) { return response.ok ? response.json() : {}; })
+        .catch(function () { return {}; })
+    ])
+      .then(function (payloads) {
+        state.sourceHealth = payloads[1] || {};
+        init(payloads[0]);
       })
-      .then(init)
       .catch(function () {
         return fetch('assets/data/ai-news.json', { cache: 'no-store' })
           .then(function (response) {

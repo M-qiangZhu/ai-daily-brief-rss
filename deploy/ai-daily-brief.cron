@@ -2,4 +2,4 @@ SHELL=/bin/bash
 TZ=Asia/Shanghai
 PATH=/usr/local/bin:/usr/bin:/bin
 
-0 9 * * * APP_DIR=/home/devz/ai-daily-brief-rss PUBLIC_URL=http://220.154.142.131:19401 /home/devz/ai-daily-brief-rss/scripts/run_daily.sh
+0 */6 * * * APP_DIR=/home/devz/ai-daily-brief-rss PUBLIC_URL=http://220.154.142.131:19401 /home/devz/ai-daily-brief-rss/scripts/run_daily.sh

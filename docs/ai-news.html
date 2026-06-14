@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>每日AI资讯</title>
-  <link rel="stylesheet" href="assets/css/ai-news.css">
+  <link rel="stylesheet" href="assets/css/ai-news.css?v=20260615">
 </head>
 
 <body data-page="today">
@@ -24,13 +24,17 @@
 
   <main class="page-shell">
     <section class="leadership-panel" id="leadership-panel"></section>
+    <section class="source-health" id="source-health" aria-live="polite" hidden></section>
     <section class="category-overview" id="category-overview"></section>
+    <nav class="category-nav" aria-label="资讯分类">
+      <div class="category-nav-list" id="category-nav-list"></div>
+    </nav>
     <section class="brief-line" id="brief-line">正在同步资讯流</section>
     <section class="news-board" id="news-board"></section>
     <section class="empty-state" id="empty-state" hidden>暂无匹配资讯</section>
   </main>
 
-  <script src="assets/js/ai-news.js" defer></script>
+  <script src="assets/js/ai-news.js?v=20260615" defer></script>
 </body>
 
 </html>
