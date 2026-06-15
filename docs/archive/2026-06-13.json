@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-06-15T04:26:13.250974+00:00",
+  "count": 4,
+  "items": [
+    {
+      "id": "591b4c486cf3e8af",
+      "date": "2026-06-13",
+      "type": "AI Agent",
+      "title": "Agent终于长出了身体：Jiuwen Symbiosis背后的思考与实践",
+      "content_summary": "一起构建下一代物理世界的智能系统",
+      "detail_link": "https://www.qbitai.com/2026/06/435455.html",
+      "source_site": "量子位",
+      "published_at": "2026-06-13T16:11:07+08:00",
+      "leadership_category": "AI技术与产业应用",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
+    },
+    {
+      "id": "4855908a320335ac",
+      "date": "2026-06-13",
+      "type": "AI资讯",
+      "title": "2026智源大会开幕：推动AI、物理世界和生命科学“三体互动”",
+      "content_summary": "2026智源大会开幕：推动AI、物理世界和生命科学“三体互动”",
+      "detail_link": "https://www.qbitai.com/2026/06/435394.html",
+      "source_site": "量子位",
+      "published_at": "2026-06-13T13:19:13+08:00",
+      "leadership_category": "AI技术与产业应用",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
+    },
+    {
+      "id": "89a3e60c5570ad3c",
+      "date": "2026-06-13",
+      "type": "AI模型",
+      "title": "刚刚，GPT-5.5被中国纯血AI反超了！",
+      "content_summary": "ASI启示录 2026-06-13 12:30 上海 新智元报道 【新智元导读】 刚刚，国产纯血大模型彻底逆袭了！在医疗领域全面碾压GPT-5.5，狂揽双料第一，91%的医生直呼敢用。 刚刚，医疗大模型赛道的魔咒，终于被打破了！ 过去两年，医疗大模型是AI落地中关注度最高的赛道之一，也是公认最难啃的一条。 几乎每家大厂都会端出一个「会看病」的LLM：发布会上对答如流，PPT里指标霸榜。 然而，一旦把它放进诊室，医生用两次就默默关掉了。 归根到底，「能上台演示」和「能下场干活」之间的那道坎，真正迈过去的屈指可数。 但这几天，剧情迎来了反转。 飞利浦最新发布的《2026未来健康指数》里，藏着一个极具画面感的数据。 27%的临床医生承认…",
+      "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652706871&idx=1&sn=d0481cc1dcb57eefba337407d73e1b53",
+      "source_site": "新智元",
+      "published_at": "2026-06-13T12:30:00+08:00",
+      "leadership_category": "AI技术与产业应用",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
+    },
+    {
+      "id": "cdc09459a502a9f1",
+      "date": "2026-06-13",
+      "type": "AI模型",
+      "title": "Anthropic 5.2万人调查大曝光！美国人对AI已达成共识",
+      "content_summary": "ASI启示录 2026-06-13 12:30 上海 新智元报道 【新智元导读】 在一个什么都能吵翻天的国家，71%的美国人难得达成共识：AI必须有人管——但管它的，绝不能是造它的人。 15%。 每100个美国人里，只有15个相信AI公司能管好自己造出来的东西。 刚刚，Anthropic甩出一份重磅调查： Anthropic Public Record 。 他们调查了51,993名美国人，覆盖全美50个州、华盛顿特区和波多黎各，再按人口普查基准在年龄、性别、学历、种族上做加权。 这是奔着「全体美国人怎么看AI」去的—— 连压根不用AI的人都被拉进来了。 Anthropic之前做过一次8.1万Claude用户的深度访谈，也定期发布追…",
+      "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652706871&idx=2&sn=494c7f88df5662970866f098fdfa1a8c",
+      "source_site": "新智元",
+      "published_at": "2026-06-13T12:30:00+08:00",
+      "leadership_category": "AI技术与产业应用",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-06-15T16:42:29.104128+00:00",
+  "count": 3,
+  "items": [
+    {
+      "id": "3cbfd04b5e7f2918",
+      "date": "2026-06-14",
+      "type": "AI模型",
+      "title": "仅一行代码，Fable 5复活了！",
+      "content_summary": "ASI启示录 2026-06-14 12:38 北京 新智元报道 【新智元导读】 一行代码，原地复活！Fable 5突遭全网下架，幕后推手竟是「头号金主」。Dario硬刚拒改Bug，惨遭拔网线。 被判「死刑」的Claude Fable 5，又复活了！ 刚刚，开发者Jamieson O'Reilly用泄露的系统级Prompt，硬核解锁了「轻量版」的Fable 5。 仅仅一行代码的注入，就让Opus 4.8当场「开智」。 在极限对照实验中，O'Reilly给到同一个指令——制作一个现代苹果风的网页。 被注入Fable 5灵魂的左屏，吐出的网页成品，完全像换了一个「人格」。 如今，全网坐等Claude Fable 5回归的呼声，愈发高涨…",
+      "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652707105&idx=1&sn=f6fef07f5b156c1146e1d81905f3887a",
+      "source_site": "新智元",
+      "published_at": "2026-06-14T12:38:00+08:00",
+      "leadership_category": "AI技术与产业应用",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
+    },
+    {
+      "id": "f576085b62e2830f",
+      "date": "2026-06-14",
+      "type": "AI资讯",
+      "title": "OpenAI遭多州传票围剿，AI怎么说话都要查",
+      "content_summary": "新智元报道 【新智元导读】都以为OpenAI上市只差临门一脚，",
+      "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652707105&idx=2&sn=4e2b6b448d43478d8a6cc17e81b743e4",
+      "source_site": "新智元",
+      "published_at": "2026-06-14T12:38:00+08:00",
+      "leadership_category": "AI技术与产业应用",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
+    },
+    {
+      "id": "f6e030199556f54d",
+      "date": "2026-06-14",
+      "type": "AI资讯",
+      "title": "新智元ALL in ASI英雄帖",
+      "content_summary": "ASI启示录 2026-06-14 12:38 北京 新智元报道 【新智元导读】 2026年，ASI奇点之年。全球AI竞赛进入决赛圈，AI正以指数级的速度重塑世界。新智元All in ASI，现招募两个核心战位——ASI架构师（年薪50-70万）与ASI主笔（年薪50-70万），坐标北京上地，虚位以待。 全球 AI竞赛进入决赛圈，每天都有大事发生。 新智元要覆盖的赛道、要打的仗 也在飙升 。 我们不仅要在全球 AI最前沿保持绝对敏锐，更要在ASI浪潮中主动出击。 现在，新智元正式发出 All in ASI 英雄帖。 我们在上地 AI家，召唤 对 ASI有信仰，有使命感 ， 热爱技术 、 擅长 内容 创作 的你。 我们找的是英雄。…",
+      "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652707105&idx=3&sn=89479928325d3cdbc1a14720e0b9f404",
+      "source_site": "新智元",
+      "published_at": "2026-06-14T12:38:00+08:00",
+      "leadership_category": "AI技术与产业应用",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
+    }
+  ]
+}

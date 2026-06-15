@@ -7,7 +7,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 from src.domestic_ai_news import DomesticAINewsFetcher, NewsItem
-from src.main import _mark_notification_sent, _notification_sent
+from src.main import _mark_notification_sent, _notification_sent, notify_from_archive
 from src.notifier import build_wechat_markdown
 from src.page_generator import PageGenerator
 
@@ -209,9 +209,10 @@ def test_nantong_category_priority():
     ]
 
 
-def test_wechat_markdown_always_reports_nantong_status():
+def test_wechat_markdown_only_reports_nantong_when_present():
     without_nantong = build_wechat_markdown([], "https://example.com", "2026-06-15")
-    assert "南通动态：<font color=\"comment\">0 条</font>，今日暂无南通市 AI 动态" in without_nantong
+    assert "南通动态" not in without_nantong
+    assert "南通市官方AI动态" not in without_nantong
 
     item = NewsItem(
         "1",
@@ -226,6 +227,7 @@ def test_wechat_markdown_always_reports_nantong_status():
     )
     with_nantong = build_wechat_markdown([item], "https://example.com", "2026-06-15")
     assert "南通动态：<font color=\"comment\">1 条</font>，南通发布人工智能产业新举措" in with_nantong
+    assert "南通市官方AI动态：" not in with_nantong
 
 
 def test_extracts_baidu_news_result(tmp_path):
@@ -407,12 +409,20 @@ def test_static_ui_and_schedule_include_new_contracts():
     today = (root / "docs/ai-news.html").read_text(encoding="utf-8")
     cron = (root / "deploy/ai-daily-brief.cron").read_text(encoding="utf-8")
     runner = (root / "scripts/run_daily.sh").read_text(encoding="utf-8")
+    notifier = (root / "scripts/send_daily_notification.sh").read_text(encoding="utf-8")
 
     assert "aria-expanded" in script
     assert "category-nav-list" in today
-    assert "source-health" in today
-    assert "0 */6 * * *" in cron
+    assert "source-health" not in today
+    assert "category-overview" not in today
+    assert "source-health.json" not in script
+    assert "alwaysVisibleCategories" not in script
+    assert "return fromHash || ''" in script
+    assert "0 0,8,16 * * *" in cron
+    assert "0 9 * * *" in cron
     assert "--days 2" in runner
+    assert "--notify" not in runner
+    assert "--notify-only" in notifier
 
 
 def test_daily_notification_state_prevents_duplicate_send(tmp_path):
@@ -423,3 +433,30 @@ def test_daily_notification_state_prevents_duplicate_send(tmp_path):
     assert not _notification_sent(report_date, str(config_path))
     _mark_notification_sent(report_date, str(config_path))
     assert _notification_sent(report_date, str(config_path))
+
+
+def test_notify_from_archive_requires_webhook(tmp_path, monkeypatch):
+    report_date = datetime(2026, 6, 15).date()
+    docs_dir = tmp_path / "docs"
+    archive_dir = docs_dir / "archive"
+    archive_dir.mkdir(parents=True)
+    (archive_dir / "2026-06-15.json").write_text(
+        json.dumps({"items": []}),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "sources.json"
+    config_path.write_text("{}", encoding="utf-8")
+    monkeypatch.delenv("WECHAT_WEBHOOK_URL", raising=False)
+
+    result = asyncio.run(notify_from_archive(
+        report_date,
+        str(config_path),
+        str(docs_dir),
+        "https://example.com",
+    ))
+
+    assert result == {
+        "success": False,
+        "sent": False,
+        "reason": "WECHAT_WEBHOOK_URL is not set",
+    }

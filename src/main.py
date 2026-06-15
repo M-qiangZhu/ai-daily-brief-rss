@@ -84,6 +84,43 @@ async def build(
     }
 
 
+async def notify_from_archive(
+    report_date: date,
+    config: str,
+    docs_dir: str,
+    public_url: str,
+) -> dict:
+    archive_path = Path(docs_dir) / "archive" / f"{report_date.isoformat()}.json"
+    try:
+        payload = json.loads(archive_path.read_text(encoding="utf-8"))
+        items = [PageGenerator._item_from_dict(item) for item in payload.get("items", [])]
+    except (OSError, json.JSONDecodeError, TypeError) as exc:
+        return {
+            "success": False,
+            "sent": False,
+            "reason": f"archive unavailable: {exc}",
+            "archive": str(archive_path),
+        }
+
+    webhook_url = os.environ.get("WECHAT_WEBHOOK_URL", "").strip()
+    if not webhook_url:
+        return {"success": False, "sent": False, "reason": "WECHAT_WEBHOOK_URL is not set"}
+    if _notification_sent(report_date, config):
+        return {"success": True, "sent": False, "reason": "daily notification already sent"}
+
+    page_url = public_url.rstrip("/") + "/ai-news.html" if public_url else ""
+    content = build_wechat_markdown(items, page_url, report_date.isoformat())
+    response = await send_wechat_markdown(webhook_url, content)
+    _mark_notification_sent(report_date, config)
+    return {
+        "success": True,
+        "sent": True,
+        "count": len(items),
+        "archive": str(archive_path),
+        "response": response,
+    }
+
+
 def _notification_state_path(config: str) -> Path:
     config_path = Path(config)
     return config_path.parent / "state" / "notifications.json"
@@ -118,9 +155,20 @@ def main() -> None:
     parser.add_argument("--docs-dir", default="docs", help="Static site output directory")
     parser.add_argument("--public-url", default="http://220.154.142.131:19401", help="Public static site base URL")
     parser.add_argument("--notify", action="store_true", help="Send the brief to WECHAT_WEBHOOK_URL")
+    parser.add_argument("--notify-only", action="store_true", help="Send today's existing archive without fetching")
     parser.add_argument("--json-only", action="store_true", help="Print fetched JSON without writing pages")
     args = parser.parse_args()
     target_date = _target_date(args.date, args.timezone)
+
+    if args.notify_only:
+        result = asyncio.run(notify_from_archive(
+            target_date,
+            args.config,
+            args.docs_dir,
+            args.public_url,
+        ))
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return
 
     if args.json_only:
         fetcher = DomesticAINewsFetcher(args.config)

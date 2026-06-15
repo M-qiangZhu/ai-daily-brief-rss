@@ -8,7 +8,6 @@
     dates: [],
     activeDate: '',
     activeCategory: '',
-    sourceHealth: {},
     page: document.body.getAttribute('data-page') || 'today'
   };
 
@@ -43,7 +42,6 @@
     '行业应用与商业化': 'AI技术与产业应用',
     'AI终端、机器人与硬件': 'AI技术与产业应用'
   };
-  var alwaysVisibleCategories = ['南通市官方AI动态'];
   var categoryAnchors = {
     '政策与监管': 'category-policy',
     '南通市官方AI动态': 'category-nantong',
@@ -169,9 +167,6 @@
       if (!groups[category]) groups[category] = [];
       groups[category].push(item);
     });
-    alwaysVisibleCategories.forEach(function (category) {
-      if (!groups[category]) groups[category] = [];
-    });
     return Object.keys(groups).sort(function (a, b) {
       var priorityA = categoryPriority[a] == null ? 99 : categoryPriority[a];
       var priorityB = categoryPriority[b] == null ? 99 : categoryPriority[b];
@@ -232,11 +227,15 @@
     var categories = groupItems(items);
     var sourceCount = unique(items.map(function (item) { return item.source_site; })).length;
     var bullets = [
-      { label: '政策信号', text: policy ? shortTitle(policy) : '今日暂无明确政策信号' },
-      { label: '南通关注', text: nantong ? shortTitle(nantong) : '今日暂无南通市 AI 动态' },
+      { label: '政策信号', text: policy ? shortTitle(policy) : '今日暂无明确政策信号' }
+    ];
+    if (nantong) {
+      bullets.push({ label: '南通关注', text: shortTitle(nantong) });
+    }
+    bullets.push(
       { label: '电信关注', text: infra ? shortTitle(infra) : '今日暂无运营商或算力基础设施重点' },
       { label: '技术趋势', text: tech ? shortTitle(tech) : '今日暂无 AI 技术与产业应用重点' }
-    ];
+    );
     panel.innerHTML = [
       '<div class="leadership-head">',
       '  <div><span class="eyebrow">领导摘要</span><h2>' + escapeHtml(state.activeDate) + ' AI 情报速览</h2></div>',
@@ -254,22 +253,6 @@
     ].join('');
   }
 
-  function renderCategoryOverview(items) {
-    var wrap = byId('category-overview');
-    if (!wrap) return;
-    var groups = groupItems(items);
-    wrap.innerHTML = groups.map(function (group) {
-      var anchor = categoryAnchor(group.category);
-      var expanded = state.activeCategory === group.category;
-      return '<button class="category-brief' + (expanded ? ' active' : '') + '" type="button" data-category="' +
-        escapeHtml(group.category) + '" aria-expanded="' + expanded + '" aria-controls="' + escapeHtml(anchor) + '-panel">' +
-        '<div><h3>' + escapeHtml(group.category) + '</h3><p>' + escapeHtml(categorySummary(group.category, group.items)) + '</p></div>' +
-        '<span class="category-brief-side"><strong>' + group.items.length + '</strong><i aria-hidden="true"></i></span>' +
-        '</button>';
-    }).join('');
-    renderCategoryNav(groups);
-  }
-
   function renderCategoryNav(groups) {
     var wrap = byId('category-nav-list');
     if (!wrap) return;
@@ -279,23 +262,6 @@
         escapeHtml(group.category) + '" aria-expanded="' + active + '">' +
         '<span>' + escapeHtml(group.category) + '</span><strong>' + group.items.length + '</strong></button>';
     }).join('');
-  }
-
-  function renderSourceHealth() {
-    var wrap = byId('source-health');
-    if (!wrap) return;
-    var health = state.sourceHealth || {};
-    if (!health.official_total) {
-      wrap.hidden = true;
-      return;
-    }
-    wrap.hidden = false;
-    var failing = Number(health.official_failing || 0);
-    wrap.className = 'source-health' + (failing ? ' source-health--warning' : '');
-    wrap.innerHTML = '<span class="health-dot" aria-hidden="true"></span>' +
-      '<strong>官方信源 ' + escapeHtml(health.official_checked || 0) + '/' + escapeHtml(health.official_total) + '</strong>' +
-      '<span>' + (failing ? escapeHtml(failing) + ' 个源暂时异常' : '运行正常') + '</span>' +
-      '<span>每 6 小时更新</span>';
   }
 
   function renderArchiveDates() {
@@ -355,9 +321,7 @@
 
   function defaultCategory(groups) {
     var fromHash = categoryFromHash(groups);
-    if (fromHash) return fromHash;
-    var nonEmpty = groups.find(function (group) { return group.items.length > 0; });
-    return nonEmpty ? nonEmpty.category : (groups[0] ? groups[0].category : '');
+    return fromHash || '';
   }
 
   function render(resetCategory) {
@@ -375,8 +339,7 @@
       state.activeCategory = defaultCategory(groups);
     }
     renderLeadershipPanel(items);
-    renderCategoryOverview(items);
-    renderSourceHealth();
+    renderCategoryNav(groups);
 
     board.innerHTML = groups.map(function (group) {
       var anchor = categoryAnchor(group.category);
@@ -420,7 +383,7 @@
   function toggleCategory(category, shouldScroll, updateHash) {
     var next = state.activeCategory === category ? '' : category;
     state.activeCategory = next;
-    renderCategoryOverview(itemsForActiveDate());
+    renderCategoryNav(groupItems(itemsForActiveDate()));
     var sections = byId('news-board').querySelectorAll('.category-section');
     sections.forEach(function (section) {
       var button = section.querySelector('[data-category]');
@@ -467,7 +430,8 @@
     state.dates = state.archiveIndex.map(function (item) { return item.date; }).filter(Boolean);
 
     var urlDate = readDateFromUrl();
-    state.activeDate = state.page === 'archive' && state.dates.indexOf(urlDate) >= 0
+    var hasValidArchiveDate = state.page === 'archive' && state.dates.indexOf(urlDate) >= 0;
+    state.activeDate = hasValidArchiveDate
       ? urlDate
       : data.latest_date || state.dates[0] || '';
 
@@ -475,7 +439,7 @@
     bindCategories();
     bindThemeToggle();
     applyTheme(preferredTheme());
-    setActiveDate(state.activeDate, state.page === 'archive');
+    setActiveDate(state.activeDate, state.page === 'archive' && !hasValidArchiveDate);
   }
 
   function initLegacyPayload(data) {
@@ -494,19 +458,12 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     applyTheme(preferredTheme());
-    Promise.all([
-      fetch('archive/index.json', { cache: 'no-store' }).then(function (response) {
+    fetch('archive/index.json', { cache: 'no-store' })
+      .then(function (response) {
         if (!response.ok) throw new Error('HTTP ' + response.status);
         return response.json();
-      }),
-      fetch('assets/data/source-health.json', { cache: 'no-store' })
-        .then(function (response) { return response.ok ? response.json() : {}; })
-        .catch(function () { return {}; })
-    ])
-      .then(function (payloads) {
-        state.sourceHealth = payloads[1] || {};
-        init(payloads[0]);
       })
+      .then(init)
       .catch(function () {
         return fetch('assets/data/ai-news.json', { cache: 'no-store' })
           .then(function (response) {

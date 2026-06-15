@@ -42,13 +42,14 @@ def build_wechat_markdown(
         f">共收录：<font color=\"warning\">{len(items)} 条</font>",
     ]
 
-    for label in LEADERSHIP_LABELS[:5]:
+    for label in [item for item in LEADERSHIP_LABELS[:5] if item != "南通市官方AI动态"]:
         count = category_counts.get(label, 0)
         if count:
             lines.append(f">{label}：<font color=\"comment\">{count} 条</font>")
 
-    nantong_focus = _shorten(nantong_items[0].title, 48) if nantong_items else "今日暂无南通市 AI 动态"
-    lines.append(f">南通动态：<font color=\"comment\">{len(nantong_items)} 条</font>，{nantong_focus}")
+    if nantong_items:
+        nantong_focus = _shorten(nantong_items[0].title, 48)
+        lines.append(f">南通动态：<font color=\"comment\">{len(nantong_items)} 条</font>，{nantong_focus}")
 
     focus_items = items[:3]
     if focus_items:

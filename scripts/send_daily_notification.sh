@@ -3,7 +3,7 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 PUBLIC_URL="${PUBLIC_URL:-http://220.154.142.131:19401}"
-LOCK_FILE="${LOCK_FILE:-/tmp/ai-daily-brief.lock}"
+LOCK_FILE="${NOTIFY_LOCK_FILE:-/tmp/ai-daily-brief-notify.lock}"
 UV_BIN="${UV_BIN:-$HOME/.local/bin/uv}"
 
 if [ ! -x "$UV_BIN" ]; then
@@ -22,7 +22,7 @@ fi
 mkdir -p logs
 
 flock -n "$LOCK_FILE" "$UV_BIN" run ai-daily-brief \
-  --days 2 \
+  --notify-only \
   --timezone Asia/Shanghai \
   --public-url "$PUBLIC_URL" \
-  >> "logs/daily.log" 2>&1
+  >> "logs/notification.log" 2>&1
