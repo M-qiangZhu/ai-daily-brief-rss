@@ -418,7 +418,8 @@ def test_static_ui_and_schedule_include_new_contracts():
     assert "source-health.json" not in script
     assert "alwaysVisibleCategories" not in script
     assert "return fromHash || ''" in script
-    assert "0 0,8,16 * * *" in cron
+    assert "0 0,16 * * *" in cron
+    assert "50 8 * * *" in cron
     assert "0 9 * * *" in cron
     assert "--days 2" in runner
     assert "--notify" not in runner
