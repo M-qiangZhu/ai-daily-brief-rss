@@ -133,6 +133,28 @@ def test_v2ex_strict_filter_blocks_promotions_and_soft_questions(tmp_path):
     )
 
 
+def test_vehicle_news_is_filtered_unless_infrastructure_related(tmp_path):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"feeds": [], "searches": []}), encoding="utf-8")
+    fetcher = DomesticAINewsFetcher(config_path)
+
+    assert not fetcher._is_relevant(
+        "长安汽车否认采用千里科技智驾方案",
+        "自研智能驾驶系统进入量产阶段。",
+        source_name="IT之家",
+    )
+    assert fetcher._is_relevant(
+        "理想新一代座舱采用高通 AI 芯片",
+        "车载芯片支持本地推理和端侧算力升级。",
+        source_name="IT之家",
+    )
+    assert fetcher._source_accepts(
+        {"name": "Official AI", "official": True, "ai_focused": True},
+        "Waymo 发布自动驾驶服务更新",
+        "主要是运营区域和乘车体验更新。",
+    ) is False
+
+
 def test_brief_sort_prioritizes_leadership_topics():
     items = [
         NewsItem("1", "2026-05-11", "AI编程", "编程工具", "", "https://example.com/1", "测试", "2026-05-11T12:00:00+00:00"),
@@ -413,6 +435,10 @@ def test_static_ui_and_schedule_include_new_contracts():
 
     assert "aria-expanded" in script
     assert "category-nav-list" in today
+    assert "摘要" in script
+    assert "领导摘要" not in script
+    assert "版本 V1.0.2" in today
+    assert "site-footer" in today
     assert "source-health" not in today
     assert "category-overview" not in today
     assert "source-health.json" not in script

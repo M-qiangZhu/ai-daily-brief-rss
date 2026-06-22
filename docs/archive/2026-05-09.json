@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T15:59:43.977580+00:00",
+  "generated_at": "2026-06-22T15:36:31.857074+00:00",
   "count": 5,
   "items": [
     {
@@ -11,7 +11,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652698810&idx=2&sn=23a1f18f8b94061e7bab8a3f3355f213",
       "source_site": "新智元",
       "published_at": "2026-05-09T04:05:00+00:00",
-      "leadership_category": "政策与监管"
+      "leadership_category": "政策与监管",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "720f11f4a92358dc",
@@ -22,7 +26,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652698810&idx=1&sn=33dcf303bfc9acf7a29536fb0e8a9eee",
       "source_site": "新智元",
       "published_at": "2026-05-09T04:05:00+00:00",
-      "leadership_category": "算力、数据中心与云基础设施"
+      "leadership_category": "算力、数据中心与云基础设施",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "19053a99586e4e10",
@@ -33,7 +41,11 @@
       "detail_link": "https://baijiahao.baidu.com/s?id=1864887830649895083&wfr=spider&for=pc",
       "source_site": "12小时前",
       "published_at": "2026-05-09T00:00:00+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "12小时前",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "16e4bdbf498f9d98",
@@ -44,7 +56,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652698810&idx=3&sn=e3de21a1222147fafbb35f247b5d2c13",
       "source_site": "新智元",
       "published_at": "2026-05-09T04:05:00+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "e5d87bb9ad7d08a1",
@@ -55,7 +71,11 @@
       "detail_link": "https://baijiahao.baidu.com/s?id=1864707584992332402&wfr=spider&for=pc",
       "source_site": "人民资讯",
       "published_at": "2026-05-09T00:00:00+00:00",
-      "leadership_category": "行业应用与商业化"
+      "leadership_category": "行业应用与商业化",
+      "organization": "人民资讯",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     }
   ]
 }

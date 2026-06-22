@@ -20,7 +20,6 @@
     'AI技术': 3,
     'AI模型': 4,
     'AI Agent': 5,
-    '智能驾驶': 6,
     '机器人': 7,
     'AI硬件': 8,
     'AI安全': 9,
@@ -238,7 +237,7 @@
     );
     panel.innerHTML = [
       '<div class="leadership-head">',
-      '  <div><span class="eyebrow">领导摘要</span><h2>' + escapeHtml(state.activeDate) + ' AI 情报速览</h2></div>',
+      '  <div><span class="eyebrow">摘要</span><h2>' + escapeHtml(state.activeDate) + ' AI 情报速览</h2></div>',
       '  <div class="metric-row">',
       '    <span><strong>' + items.length + '</strong> 条资讯</span>',
       '    <span><strong>' + categories.length + '</strong> 类主题</span>',

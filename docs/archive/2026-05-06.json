@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T15:59:43.977828+00:00",
+  "generated_at": "2026-06-22T15:36:31.855527+00:00",
   "count": 6,
   "items": [
     {
@@ -11,7 +11,11 @@
       "detail_link": "https://baijiahao.baidu.com/s?id=1864433106381633314&wfr=spider&for=pc",
       "source_site": "新浪财经",
       "published_at": "2026-05-06T15:59:43.416184+00:00",
-      "leadership_category": "运营商与央国企动态"
+      "leadership_category": "运营商与央国企动态",
+      "organization": "新浪财经",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "368294a0a9654f22",
@@ -22,7 +26,11 @@
       "detail_link": "https://baijiahao.baidu.com/s?id=1864433931796652918&wfr=spider&for=pc",
       "source_site": "21世纪经济报道",
       "published_at": "2026-05-06T15:59:43.451708+00:00",
-      "leadership_category": "算力、数据中心与云基础设施"
+      "leadership_category": "算力、数据中心与云基础设施",
+      "organization": "21世纪经济报道",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "3a32c5b97790b412",
@@ -33,7 +41,11 @@
       "detail_link": "http://news.10jqka.com.cn/20260506/c676470979.shtml",
       "source_site": "同花顺财经",
       "published_at": "2026-05-06T15:59:43.440047+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "同花顺财经",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "058581461da5368e",
@@ -44,7 +56,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652697811&idx=1&sn=ef19b8efc229b6a016508efb19c3186c",
       "source_site": "新智元",
       "published_at": "2026-05-06T01:48:00+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "90d74608fddcda3a",
@@ -55,7 +71,11 @@
       "detail_link": "https://baijiahao.baidu.com/s?id=1864438118364269900&wfr=spider&for=pc",
       "source_site": "36氪",
       "published_at": "2026-05-06T15:59:43.451758+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "36氪",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "dd1a3314ca0cba9f",
@@ -66,7 +86,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652697811&idx=3&sn=9756e0d615b565b0e398042e7e364817",
       "source_site": "新智元",
       "published_at": "2026-05-06T01:48:00+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     }
   ]
 }

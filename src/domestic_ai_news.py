@@ -179,17 +179,6 @@ KEYWORDS = [
     "Intel Gaudi",
     "TPU",
     "ASIC",
-    "自动驾驶",
-    "智能驾驶",
-    "端到端智驾",
-    "FSD",
-    "Robotaxi",
-    "Waymo",
-    "Tesla AI",
-    "智驾",
-    "BEV",
-    "Occupancy",
-    "VLA",
     "人形机器人",
     "具身智能",
     "Embodied AI",
@@ -289,8 +278,6 @@ STRONG_AI_KEYWORDS = [
     "Blackwell",
     "昇腾",
     "算力",
-    "自动驾驶",
-    "智能驾驶",
     "具身智能",
     "人形机器人",
     "AI PC",
@@ -301,6 +288,50 @@ STRONG_AI_KEYWORDS = [
 ]
 
 STRICT_FEED_SOURCES = {"IT之家", "V2EX"}
+
+VEHICLE_NOISE_KEYWORDS = [
+    "汽车",
+    "自动驾驶",
+    "智能驾驶",
+    "端到端智驾",
+    "智驾",
+    "车企",
+    "车载",
+    "智能座舱",
+    "座舱",
+    "电动汽车",
+    "新能源车",
+    "整车",
+    "FSD",
+    "Robotaxi",
+    "Waymo",
+    "Tesla AI",
+    "BEV",
+    "Occupancy",
+]
+
+INFRASTRUCTURE_KEEP_KEYWORDS = [
+    "算力",
+    "芯片",
+    "GPU",
+    "NVIDIA",
+    "CUDA",
+    "Blackwell",
+    "H100",
+    "H200",
+    "B200",
+    "GB200",
+    "昇腾",
+    "Ascend",
+    "TPU",
+    "ASIC",
+    "数据中心",
+    "液冷",
+    "推理加速",
+    "AI Infra",
+    "云基础设施",
+    "边缘AI",
+]
 
 V2EX_BLOCKED_TITLE_PATTERNS = [
     "[推广]",
@@ -857,6 +888,8 @@ class DomesticAINewsFetcher:
         return "zh" if chinese >= max(4, latin // 5) else "en"
 
     def _source_accepts(self, source: dict, title: str, summary: str) -> bool:
+        if self._is_vehicle_noise(title, summary):
+            return False
         if source.get("official") and source.get("ai_focused", True):
             return True
         return self._is_relevant(title, summary, source.get("keywords"), source.get("name", ""))
@@ -880,7 +913,6 @@ class DomesticAINewsFetcher:
             ("AI模型", ["大模型", "基础模型", "推理模型", "llm", "vlm", "slm", "deepseek", "通义", "qwen", "豆包", "kimi", "glm", "claude", "gemini", "gpt"]),
             ("算力芯片", ["算力", "nvidia", "cuda", "blackwell", "h100", "h200", "b200", "gb200", "昇腾", "ascend", "gpu", "tpu", "mi300", "芯片"]),
             ("机器人", ["机器人", "具身智能", "embodied ai", "figure ai", "unitree", "宇树", "spatial intelligence"]),
-            ("智能驾驶", ["自动驾驶", "智能驾驶", "端到端智驾", "fsd", "robotaxi", "waymo", "tesla ai", "智驾", "bev", "occupancy"]),
             ("AI硬件", ["ai pc", "ai手机", "ai眼镜", "智能设备", "ai耳机", "智能穿戴", "xr", "ar", "mr", "vision pro"]),
             ("AI安全", ["ai安全", "模型对齐", "alignment", "深度伪造", "deepfake", "ai监管", "欧盟ai法案", "版权"]),
             ("AI技术", ["多模态", "机器学习", "深度学习", "算法", "训练", "推理", "rag", "embedding", "向量数据库", "transformer", "diffusion"]),
@@ -937,6 +969,8 @@ class DomesticAINewsFetcher:
         keywords: Iterable[str] | None = None,
         source_name: str = "",
     ) -> bool:
+        if DomesticAINewsFetcher._is_vehicle_noise(title, summary):
+            return False
         haystack = f"{title}\n{summary}".lower()
         matched = DomesticAINewsFetcher._matched_keywords(haystack, keywords or KEYWORDS)
         if not matched:
@@ -971,6 +1005,21 @@ class DomesticAINewsFetcher:
             return len(strong_matches) >= 2 or (len(strong_matches) >= 1 and len(matched_keywords) >= 3)
 
         return bool(strong_matches)
+
+    @staticmethod
+    def _is_vehicle_noise(title: str, summary: str) -> bool:
+        text = f"{title}\n{summary}".lower()
+        has_vehicle_context = any(
+            DomesticAINewsFetcher._keyword_matches(text, keyword)
+            for keyword in VEHICLE_NOISE_KEYWORDS
+        )
+        if not has_vehicle_context:
+            return False
+        has_infrastructure_context = any(
+            DomesticAINewsFetcher._keyword_matches(text, keyword)
+            for keyword in INFRASTRUCTURE_KEEP_KEYWORDS
+        )
+        return not has_infrastructure_context
 
     @staticmethod
     def _matched_keywords(haystack: str, keywords: Iterable[str]) -> list[str]:

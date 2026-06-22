@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T15:59:43.977488+00:00",
+  "generated_at": "2026-06-22T15:36:31.857440+00:00",
   "count": 5,
   "items": [
     {
@@ -11,7 +11,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652699289&idx=1&sn=885f4d874e18ce98919ea92424a69c10",
       "source_site": "新智元",
       "published_at": "2026-05-10T04:49:00+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "997977d2933bfbf4",
@@ -22,7 +26,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652699289&idx=3&sn=7efa82dfdec07bf9b8e525381cc99b25",
       "source_site": "新智元",
       "published_at": "2026-05-10T04:49:00+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "6f4b5b643f9ec7a6",
@@ -33,7 +41,11 @@
       "detail_link": "https://www.qbitai.com/2026/05/415048.html",
       "source_site": "量子位",
       "published_at": "2026-05-10T16:26:14+00:00",
-      "leadership_category": "行业应用与商业化"
+      "leadership_category": "行业应用与商业化",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "86f3f0f05f043139",
@@ -44,7 +56,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652699289&idx=2&sn=638e5b3f0268548359e95ad383e6a1a5",
       "source_site": "新智元",
       "published_at": "2026-05-10T04:49:00+00:00",
-      "leadership_category": "行业应用与商业化"
+      "leadership_category": "行业应用与商业化",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "d2020ada61028aab",
@@ -55,7 +71,11 @@
       "detail_link": "https://www.qbitai.com/2026/05/415031.html",
       "source_site": "量子位",
       "published_at": "2026-05-10T04:01:40+00:00",
-      "leadership_category": "行业应用与商业化"
+      "leadership_category": "行业应用与商业化",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     }
   ]
 }

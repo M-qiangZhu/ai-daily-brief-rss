@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-17T03:42:51.740103+00:00",
-  "count": 8,
+  "generated_at": "2026-06-22T15:36:31.859277+00:00",
+  "count": 7,
   "items": [
     {
       "id": "27e9f08844710482",
@@ -11,7 +11,11 @@
       "detail_link": "https://www.mpaypass.com.cn/download/202605/15161429.html",
       "source_site": "移动支付网",
       "published_at": "2026-05-17T11:42:42.420286+08:00",
-      "leadership_category": "政策与监管"
+      "leadership_category": "政策与监管",
+      "organization": "移动支付网",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "77208272425654d6",
@@ -22,7 +26,11 @@
       "detail_link": "https://stock.10jqka.com.cn/20260515/c676730318.shtml",
       "source_site": "同花顺",
       "published_at": "2026-05-17T11:42:42.470885+08:00",
-      "leadership_category": "运营商与央国企动态"
+      "leadership_category": "运营商与央国企动态",
+      "organization": "同花顺",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "14885c9793c33478",
@@ -33,7 +41,11 @@
       "detail_link": "https://baijiahao.baidu.com/s?id=1865283640519527936&wfr=spider&for=pc",
       "source_site": "新浪财经",
       "published_at": "2026-05-17T11:42:42.470116+08:00",
-      "leadership_category": "运营商与央国企动态"
+      "leadership_category": "运营商与央国企动态",
+      "organization": "新浪财经",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "18ebf82010238229",
@@ -44,7 +56,11 @@
       "detail_link": "https://www.ithome.com/0/951/415.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-17T08:13:59+08:00",
-      "leadership_category": "算力、数据中心与云基础设施"
+      "leadership_category": "算力、数据中心与云基础设施",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "38819b9cc12dda2f",
@@ -55,7 +71,11 @@
       "detail_link": "http://www.xinhuanet.com/sci-tech/20260515/f041b2802afc444a9e83effa736232ea/c.html",
       "source_site": "新华网",
       "published_at": "2026-05-17T11:42:42.393236+08:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "新华网",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "8a3a63e4d3ce9750",
@@ -66,7 +86,11 @@
       "detail_link": "https://www.ithome.com/0/951/431.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-17T10:13:06+08:00",
-      "leadership_category": "行业应用与商业化"
+      "leadership_category": "行业应用与商业化",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "8a339c8e866011fd",
@@ -77,18 +101,11 @@
       "detail_link": "https://www.ithome.com/0/951/422.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-17T09:17:32+08:00",
-      "leadership_category": "行业应用与商业化"
-    },
-    {
-      "id": "8c1d2da54f0f4d86",
-      "date": "2026-05-17",
-      "type": "智能驾驶",
-      "title": "长安汽车否认采用千里科技智驾方案，自研天枢智能已到收获期",
-      "content_summary": "IT之家 5 月 17 日消息，“36 氪汽车”爆料称，长安汽车计划采用千里科技的智能辅助驾驶方案，同时还将以入股方式深化双方合作。 对此，长安汽车回应新京报称“暂无计划”。另有接近长安汽车的知情人士透露，长安汽车自研的“天枢智能”辅助驾驶系统已经到了收获期，公司“不可能切换智能驾驶方案”。 事实上，从长安汽车自身的发展路线来看，其坚持智能化核心技术自主可控的态度由来已久。长安汽车已搭建起一支规模超 5000 人的专业智驾研发团队，技术落地步伐也在持续加快。 2025 年 12 月，工信部公布我国首批 L3 级有条件自动驾驶车型准入许可，长安汽车旗下深蓝 SL03 成功入围，搭载的正是长安自研的“天枢智能”辅助驾驶系统。这标志着长…",
-      "detail_link": "https://www.ithome.com/0/951/466.htm",
-      "source_site": "IT之家",
-      "published_at": "2026-05-17T11:33:30+08:00",
-      "leadership_category": "AI终端、机器人与硬件"
+      "leadership_category": "行业应用与商业化",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-11T15:59:43.977329+00:00",
-  "count": 33,
+  "generated_at": "2026-06-22T15:36:31.858655+00:00",
+  "count": 32,
   "items": [
     {
       "id": "2956681f08b00d09",
@@ -11,7 +11,11 @@
       "detail_link": "http://jszwb.jiangsu.gov.cn/art/2026/5/10/art_71797_11767890.html",
       "source_site": "江苏政务服务管理办公室",
       "published_at": "2026-05-11T15:59:43.428513+00:00",
-      "leadership_category": "政策与监管"
+      "leadership_category": "政策与监管",
+      "organization": "江苏政务服务管理办公室",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "5ffcb7b71bbe84e9",
@@ -22,7 +26,11 @@
       "detail_link": "https://baijiahao.baidu.com/s?id=1864859688769362694&wfr=spider&for=pc",
       "source_site": "人民网江苏频道",
       "published_at": "2026-05-11T03:59:43.428424+00:00",
-      "leadership_category": "政策与监管"
+      "leadership_category": "政策与监管",
+      "organization": "人民网江苏频道",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "a8fbd740a86cb72a",
@@ -33,7 +41,11 @@
       "detail_link": "http://www.myzaker.com/article/6a016084b15ec025c5764028",
       "source_site": "ZAKER资讯",
       "published_at": "2026-05-11T02:59:43.416334+00:00",
-      "leadership_category": "运营商与央国企动态"
+      "leadership_category": "运营商与央国企动态",
+      "organization": "ZAKER资讯",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "c52a4623c9b89afb",
@@ -44,7 +56,11 @@
       "detail_link": "https://www.ithome.com/0/949/032.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-11T15:54:03+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "258a50512e760ccd",
@@ -55,7 +71,11 @@
       "detail_link": "https://www.ithome.com/0/949/029.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-11T15:13:16+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "fe3f0a9b38f8a84d",
@@ -66,7 +86,11 @@
       "detail_link": "https://www.ithome.com/0/949/027.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-11T15:02:13+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "b88de06744e2c5db",
@@ -77,7 +101,11 @@
       "detail_link": "https://www.ithome.com/0/949/000.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-11T13:23:39+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "956130d99f36f366",
@@ -88,7 +116,11 @@
       "detail_link": "https://www.qbitai.com/2026/05/415186.html",
       "source_site": "量子位",
       "published_at": "2026-05-11T05:14:35+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "128cdac99833b8af",
@@ -99,7 +131,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652699411&idx=1&sn=e11e9bab250663e0c38d5db2e3cdbd69",
       "source_site": "新智元",
       "published_at": "2026-05-11T05:05:00+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "f90e6279f4da3745",
@@ -110,7 +146,11 @@
       "detail_link": "https://www.qbitai.com/2026/05/415065.html",
       "source_site": "量子位",
       "published_at": "2026-05-11T01:51:36+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "86559e62e7e4d272",
@@ -121,7 +161,11 @@
       "detail_link": "https://www.qbitai.com/2026/05/415263.html",
       "source_site": "量子位",
       "published_at": "2026-05-11T10:18:49+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "9eaf4a68d73c609b",
@@ -132,7 +176,11 @@
       "detail_link": "https://www.qbitai.com/2026/05/415810.html",
       "source_site": "量子位",
       "published_at": "2026-05-11T07:57:03+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "dab7364aed148ef8",
@@ -143,7 +191,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652699411&idx=3&sn=dc9e47072fd295f8bcb5738aa632ef9b",
       "source_site": "新智元",
       "published_at": "2026-05-11T05:05:00+00:00",
-      "leadership_category": "AI模型与智能体技术"
+      "leadership_category": "AI模型与智能体技术",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "a3d414bc3e072e70",
@@ -154,18 +206,11 @@
       "detail_link": "https://www.ithome.com/0/949/021.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-11T14:33:14+00:00",
-      "leadership_category": "行业应用与商业化"
-    },
-    {
-      "id": "9ee00f95da3eecab",
-      "date": "2026-05-11",
-      "type": "AI资讯",
-      "title": "哈曼发布 AI 赋能车载 K 歌平台 Sing Drive：支持实时人声消除，打破预授权曲库依赖",
-      "content_summary": "IT之家 5 月 11 日消息，今天晚间，哈曼中国通过公众号宣布：AI 赋能的 K 歌平台 Sing Drive 正式问世，可将座舱转变为“私密又共享”的音乐表达空间。 该平台融合实时 AI 人声消除、与整车系统的深度集成以及殿堂级音频处理技术，号称重新定义车内娱乐的想象空间，让音乐从被动聆听进化为“人人参与的沉浸体验”。 不同于依赖手机投屏或受限曲库的传统 K 歌方案，Sing Drive 原生集成于整车信息娱乐与音响系统之中，以车规级标准打造，带来更顺畅、更稳定的体验。同时，部分 Sing Drive 平台还采用 低时延 AI 技术 ，可对任意音乐进行实时人声分离，让乘客能够选择流媒体平台或个人曲库中的音乐进行歌唱。 据IT之…",
-      "detail_link": "https://www.ithome.com/0/948/994.htm",
-      "source_site": "IT之家",
-      "published_at": "2026-05-11T12:49:32+00:00",
-      "leadership_category": "行业应用与商业化"
+      "leadership_category": "行业应用与商业化",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "fc81031e81ab43a4",
@@ -176,7 +221,11 @@
       "detail_link": "https://www.qbitai.com/2026/05/415842.html",
       "source_site": "量子位",
       "published_at": "2026-05-11T08:31:05+00:00",
-      "leadership_category": "行业应用与商业化"
+      "leadership_category": "行业应用与商业化",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "7202bdf23427179e",
@@ -187,7 +236,11 @@
       "detail_link": "https://www.qbitai.com/2026/05/415403.html",
       "source_site": "量子位",
       "published_at": "2026-05-11T06:32:05+00:00",
-      "leadership_category": "行业应用与商业化"
+      "leadership_category": "行业应用与商业化",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "003c68c3e0ae8e1c",
@@ -198,7 +251,11 @@
       "detail_link": "https://www.ithome.com/0/948/993.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-11T12:43:17+00:00",
-      "leadership_category": "AI终端、机器人与硬件"
+      "leadership_category": "AI终端、机器人与硬件",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "4841e6b3936dc423",
@@ -209,7 +266,11 @@
       "detail_link": "https://www.ithome.com/0/948/992.htm",
       "source_site": "IT之家",
       "published_at": "2026-05-11T12:39:07+00:00",
-      "leadership_category": "AI终端、机器人与硬件"
+      "leadership_category": "AI终端、机器人与硬件",
+      "organization": "IT之家",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "a08f48f4bf9446d9",
@@ -220,7 +281,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652699411&idx=2&sn=de646c587706218dad12289bb3356a4a",
       "source_site": "新智元",
       "published_at": "2026-05-11T05:05:00+00:00",
-      "leadership_category": "AI终端、机器人与硬件"
+      "leadership_category": "AI终端、机器人与硬件",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "d6dd6bb8f511ae42",
@@ -231,7 +296,11 @@
       "detail_link": "https://www.qbitai.com/2026/05/415714.html",
       "source_site": "量子位",
       "published_at": "2026-05-11T07:37:05+00:00",
-      "leadership_category": "投融资与竞争格局"
+      "leadership_category": "投融资与竞争格局",
+      "organization": "量子位",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "8d9958e87e244b0d",
@@ -242,7 +311,11 @@
       "detail_link": "https://www.v2ex.com/t/1212007#reply0",
       "source_site": "V2EX",
       "published_at": "2026-05-11T15:19:36+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "d30f67d6da311711",
@@ -253,7 +326,11 @@
       "detail_link": "https://www.v2ex.com/t/1211988#reply0",
       "source_site": "V2EX",
       "published_at": "2026-05-11T13:10:15+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "d05b4cffcef91e35",
@@ -264,7 +341,11 @@
       "detail_link": "https://www.v2ex.com/t/1212011#reply0",
       "source_site": "V2EX",
       "published_at": "2026-05-11T15:46:47+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "ab76230bf215305f",
@@ -275,7 +356,11 @@
       "detail_link": "https://www.v2ex.com/t/1212006#reply0",
       "source_site": "V2EX",
       "published_at": "2026-05-11T15:19:25+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "124cbbf5a6ed077c",
@@ -286,7 +371,11 @@
       "detail_link": "https://www.v2ex.com/t/1212003#reply13",
       "source_site": "V2EX",
       "published_at": "2026-05-11T14:55:01+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "8f93c1b27e9740e4",
@@ -297,7 +386,11 @@
       "detail_link": "https://www.v2ex.com/t/1211999#reply11",
       "source_site": "V2EX",
       "published_at": "2026-05-11T14:10:31+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "9cb4c6c156e535d4",
@@ -308,7 +401,11 @@
       "detail_link": "https://www.v2ex.com/t/1211995#reply5",
       "source_site": "V2EX",
       "published_at": "2026-05-11T13:48:42+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "a6d6c965fa08682c",
@@ -319,7 +416,11 @@
       "detail_link": "https://www.v2ex.com/t/1211982#reply3",
       "source_site": "V2EX",
       "published_at": "2026-05-11T12:21:47+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "12942323244eb678",
@@ -330,7 +431,11 @@
       "detail_link": "https://www.v2ex.com/t/1212004#reply0",
       "source_site": "V2EX",
       "published_at": "2026-05-11T14:55:36+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "c8a7efdfeb63dc5a",
@@ -341,7 +446,11 @@
       "detail_link": "https://www.v2ex.com/t/1211998#reply1",
       "source_site": "V2EX",
       "published_at": "2026-05-11T14:07:15+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "d0edb167d7e2ef42",
@@ -352,7 +461,11 @@
       "detail_link": "https://www.v2ex.com/t/1211986#reply0",
       "source_site": "V2EX",
       "published_at": "2026-05-11T12:43:03+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     },
     {
       "id": "37785716fd8b3057",
@@ -363,7 +476,11 @@
       "detail_link": "https://www.v2ex.com/t/1211980#reply2",
       "source_site": "V2EX",
       "published_at": "2026-05-11T12:00:30+00:00",
-      "leadership_category": "技术社区观察"
+      "leadership_category": "技术社区观察",
+      "organization": "V2EX",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     }
   ]
 }

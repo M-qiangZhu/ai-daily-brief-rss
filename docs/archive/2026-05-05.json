@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T15:59:43.977908+00:00",
+  "generated_at": "2026-06-22T15:36:31.852496+00:00",
   "count": 1,
   "items": [
     {
@@ -11,7 +11,11 @@
       "detail_link": "https://mp.weixin.qq.com/s?__biz=MzI3MTA0MTk1MA==&mid=2652697732&idx=1&sn=7a25fc352475aaf9441d85fd145b63bf",
       "source_site": "新智元",
       "published_at": "2026-05-05T05:11:00+00:00",
-      "leadership_category": "AI终端、机器人与硬件"
+      "leadership_category": "AI终端、机器人与硬件",
+      "organization": "新智元",
+      "language": "zh",
+      "source_tier": "media",
+      "source_channel": "feed"
     }
   ]
 }
