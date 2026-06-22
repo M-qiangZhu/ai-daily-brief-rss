@@ -294,7 +294,8 @@
   function setActiveDate(date, pushUrl) {
     state.activeDate = date;
     state.activeCategory = '';
-    byId('active-date').textContent = formatDateLabel(date);
+    var activeDate = byId('active-date');
+    if (activeDate) activeDate.textContent = formatDateLabel(date);
     if (pushUrl && state.page === 'archive') {
       window.history.replaceState(null, '', 'ai-news-archive.html?date=' + encodeURIComponent(date));
     }
@@ -472,7 +473,8 @@
           .then(initLegacyPayload);
       })
       .catch(function () {
-        byId('active-date').textContent = '📅 数据加载失败';
+        var activeDate = byId('active-date');
+        if (activeDate) activeDate.textContent = '📅 数据加载失败';
         byId('empty-state').hidden = false;
       });
   });
