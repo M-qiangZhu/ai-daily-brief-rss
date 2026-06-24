@@ -133,6 +133,28 @@ python3 -m http.server 4173
 
 南通本地动态会同时检索市级部门、区县政府和媒体转载。结果必须同时包含南通地域信号与明确的 AI、算力、大模型、机器人、智能制造等内容，避免普通本地新闻混入。
 
+## 服务器部署
+
+更新线上服务器时使用安全同步脚本：
+
+```bash
+scripts/deploy_server.sh
+```
+
+默认同步到 `devz@220.154.142.131:/home/devz/ai-daily-brief-rss/`。如需预览同步内容，可先执行：
+
+```bash
+DRY_RUN=1 scripts/deploy_server.sh
+```
+
+脚本会使用 `rsync --delete` 更新代码和静态资源，但会保留服务器运行态目录和配置，包括 `.env`、`.venv/`、`logs/`、`tmp/` 和 `data/state/`。
+
+`data/state/` 是服务器持久化运行态目录，不应提交到 Git，也不应在部署时删除。它包含：
+
+- `first_seen.json`：记录缺少发布时间的链接首次发现时间，避免旧内容反复归入新日期。
+- `source_health.json`：记录信源健康状态和连续失败次数。
+- `notifications.json`：记录已经推送过企业微信的日期，避免同一天重复推送。
+
 ## 领导简报视图
 
 页面顶部会自动生成“摘要”，默认提炼三类信号：
