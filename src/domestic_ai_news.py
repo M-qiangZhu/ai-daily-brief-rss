@@ -835,6 +835,7 @@ class DomesticAINewsFetcher:
 
     @staticmethod
     def _send_imap_id(mailbox: imaplib.IMAP4_SSL) -> None:
+        imaplib.Commands.setdefault("ID", ("AUTH", "SELECTED"))
         try:
             mailbox._simple_command(
                 "ID",

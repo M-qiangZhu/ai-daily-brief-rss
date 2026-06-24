@@ -1,5 +1,6 @@
 import asyncio
 from email.message import EmailMessage
+import imaplib
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -206,11 +207,14 @@ def test_extracts_plain_text_mail_news_candidates():
 
 
 def test_imap_id_compatibility_errors_are_ignored():
+    imaplib.Commands.pop("ID", None)
+
     class MailboxWithoutId:
         def _simple_command(self, *args):
             raise KeyError("ID")
 
     DomesticAINewsFetcher._send_imap_id(MailboxWithoutId())
+    assert "ID" in imaplib.Commands
 
 
 def test_keyword_matching_avoids_short_ascii_substrings(tmp_path):
