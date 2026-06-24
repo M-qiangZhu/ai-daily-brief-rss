@@ -154,13 +154,15 @@ scripts/deploy_server.sh
 DRY_RUN=1 scripts/deploy_server.sh
 ```
 
-脚本会使用 `rsync --delete` 更新代码和静态资源，但会保留服务器运行态目录和配置，包括 `.env`、`.venv/`、`logs/`、`tmp/` 和 `data/state/`。
+脚本会使用 `rsync --delete` 更新代码和静态资源，但会保留服务器运行态目录、服务器生成数据和配置，包括 `.env`、`.venv/`、`logs/`、`tmp/`、`data/state/`、`data/ai_news/latest.json`、`docs/archive/` 和 `docs/assets/data/*.json`。
 
 `data/state/` 是服务器持久化运行态目录，不应提交到 Git，也不应在部署时删除。它包含：
 
 - `first_seen.json`：记录缺少发布时间的链接首次发现时间，避免旧内容反复归入新日期。
 - `source_health.json`：记录信源健康状态和连续失败次数。
 - `notifications.json`：记录已经推送过企业微信的日期，避免同一天重复推送。
+
+`docs/archive/`、`docs/assets/data/ai-news.json`、`docs/assets/data/source-health.json` 和 `data/ai_news/latest.json` 由服务器定时检索生成。部署脚本不会删除这些文件；需要刷新线上数据时，应在服务器上运行检索命令，而不是用本地文件覆盖。
 
 ## 领导简报视图
 

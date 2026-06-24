@@ -21,6 +21,10 @@ RSYNC_FLAGS=(
   --exclude .DS_Store
   --exclude tmp/
   --exclude data/state/
+  --exclude data/ai_news/latest.json
+  --exclude docs/archive/
+  --exclude docs/assets/data/ai-news.json
+  --exclude docs/assets/data/source-health.json
 )
 
 if [ -n "$DRY_RUN" ]; then
