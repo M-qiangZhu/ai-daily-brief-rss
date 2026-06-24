@@ -333,6 +333,111 @@ INFRASTRUCTURE_KEEP_KEYWORDS = [
     "边缘AI",
 ]
 
+CONSUMER_TERMINAL_NOISE_KEYWORDS = [
+    "macos",
+    "ios",
+    "iphone",
+    "ipad",
+    "macbook",
+    "mac book",
+    "手机",
+    "智能手机",
+    "ai pc",
+    "迷你主机",
+    "笔记本",
+    "coloros",
+    "harmonyos",
+    "鸿蒙",
+    "android",
+    "安卓",
+    "oppo",
+    "vivo",
+    "荣耀",
+    "小米",
+    "三星",
+    "平板",
+    "耳机",
+    "ai眼镜",
+    "智能眼镜",
+    "智能穿戴",
+    "穿戴",
+    "xr",
+    "vision pro",
+    "车机",
+    "carplay",
+    "智能座舱",
+    "座舱",
+    "系统更新",
+    "版本更新",
+    "六月更新",
+    "推送",
+    "锁屏",
+    "壁纸",
+    "应用适配",
+    "发热",
+    "风扇",
+    "电池",
+    "售价",
+    "参数",
+    "续航",
+    "充电",
+]
+
+CONSUMER_TERMINAL_KEEP_KEYWORDS = [
+    "人工智能",
+    "生成式ai",
+    "大模型",
+    "基础模型",
+    "推理模型",
+    "端侧模型",
+    "端侧大模型",
+    "本地推理",
+    "端侧推理",
+    "芯片",
+    "半导体",
+    "存储器",
+    "代工",
+    "供应链",
+    "ai芯片",
+    "ai 芯片",
+    "npu",
+    "tops",
+    "算力",
+    "ai infra",
+    "云基础设施",
+    "数据中心",
+    "企业ai",
+    "企业 ai",
+    "ai平台",
+    "ai 平台",
+    "agent平台",
+    "agent 平台",
+    "开发者生态",
+    "生态战略",
+    "战略发布",
+    "人形机器人",
+    "具身智能",
+]
+
+V2EX_TERMINAL_KEEP_KEYWORDS = [
+    "开源",
+    "项目",
+    "工具",
+    "框架",
+    "sdk",
+    "api",
+    "模型",
+    "大模型",
+    "智能体",
+    "agent",
+    "工作流",
+    "workflow",
+    "rag",
+    "mcp",
+    "gateway",
+    "base_url",
+]
+
 V2EX_BLOCKED_TITLE_PATTERNS = [
     "[推广]",
     "[酷工作]",
@@ -971,6 +1076,8 @@ class DomesticAINewsFetcher:
     ) -> bool:
         if DomesticAINewsFetcher._is_vehicle_noise(title, summary):
             return False
+        if DomesticAINewsFetcher._is_consumer_terminal_noise(title, summary, source_name):
+            return False
         haystack = f"{title}\n{summary}".lower()
         matched = DomesticAINewsFetcher._matched_keywords(haystack, keywords or KEYWORDS)
         if not matched:
@@ -1020,6 +1127,29 @@ class DomesticAINewsFetcher:
             for keyword in INFRASTRUCTURE_KEEP_KEYWORDS
         )
         return not has_infrastructure_context
+
+    @staticmethod
+    def _is_consumer_terminal_noise(title: str, summary: str, source_name: str = "") -> bool:
+        text = f"{title}\n{summary}".lower()
+        has_terminal_context = any(
+            DomesticAINewsFetcher._keyword_matches(text, keyword)
+            for keyword in CONSUMER_TERMINAL_NOISE_KEYWORDS
+        )
+        if not has_terminal_context:
+            return False
+
+        if source_name == "V2EX":
+            has_reusable_ai_context = any(
+                DomesticAINewsFetcher._keyword_matches(text, keyword)
+                for keyword in V2EX_TERMINAL_KEEP_KEYWORDS
+            )
+            return not has_reusable_ai_context
+
+        has_ai_industry_context = any(
+            DomesticAINewsFetcher._keyword_matches(text, keyword)
+            for keyword in CONSUMER_TERMINAL_KEEP_KEYWORDS
+        )
+        return not has_ai_industry_context
 
     @staticmethod
     def _matched_keywords(haystack: str, keywords: Iterable[str]) -> list[str]:

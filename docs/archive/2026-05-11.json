@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-22T15:36:31.858655+00:00",
-  "count": 32,
+  "generated_at": "2026-06-24T09:59:36.736709+00:00",
+  "count": 31,
   "items": [
     {
       "id": "2956681f08b00d09",
@@ -371,21 +371,6 @@
       "detail_link": "https://www.v2ex.com/t/1212003#reply13",
       "source_site": "V2EX",
       "published_at": "2026-05-11T14:55:01+00:00",
-      "leadership_category": "技术社区观察",
-      "organization": "V2EX",
-      "language": "zh",
-      "source_tier": "media",
-      "source_channel": "feed"
-    },
-    {
-      "id": "8f93c1b27e9740e4",
-      "date": "2026-05-11",
-      "type": "AI编程",
-      "title": "[macOS] 有没有买了 Mac book Pro M5 的， CPU 温度很容易升高，风扇就狂转",
-      "content_summary": "如题，上个月买的 64G+2T 的版本，本想着这个配置应该各种使用无压力的，现在就是正常浏览网页，codex 开发，用着用着温度就上八十度，风扇就开始狂转了。 这是正常的吗？",
-      "detail_link": "https://www.v2ex.com/t/1211999#reply11",
-      "source_site": "V2EX",
-      "published_at": "2026-05-11T14:10:31+00:00",
       "leadership_category": "技术社区观察",
       "organization": "V2EX",
       "language": "zh",

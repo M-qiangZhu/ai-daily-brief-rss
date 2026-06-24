@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-06-22T15:36:31.861815+00:00",
-  "count": 37,
+  "generated_at": "2026-06-24T10:00:40.906783+00:00",
+  "count": 34,
   "items": [
     {
       "id": "7a67514681e4ef3d",
@@ -71,21 +71,6 @@
       "detail_link": "https://www.ithome.com/0/964/595.htm",
       "source_site": "IT之家",
       "published_at": "2026-06-15T22:58:23+08:00",
-      "leadership_category": "AI技术与产业应用",
-      "organization": "IT之家",
-      "language": "zh",
-      "source_tier": "media",
-      "source_channel": "feed"
-    },
-    {
-      "id": "000f39e103092268",
-      "date": "2026-06-15",
-      "type": "AI资讯",
-      "title": "联想 ThinkPad P14s AI 2026 笔记本上架：RTX PRO 500/1000 显卡，17999 元起",
-      "content_summary": "IT之家 6 月 15 日消息，联想 ThinkPad P14s AI 2026 笔记本今日上架电商平台，将于 6 月 22 日正式开售， 定价 17999 元起 ： Ultra 5-336H、32GB+1TB、RTX Pro 500 6G： 17999 元 Ultra 7-356H、32GB+1TB、RTX Pro 500 6G：19999 元 Ultra 7-356H、64GB+1TB、RTX Pro 500 6G：24999 元 Ultra 7-366H、32GB+1TB、RTX Pro 1000 8G：22799 元 Ultra 9-386H、32GB+1TB、RTX Pro 1000 8G：25999 元 京东 Thin…",
-      "detail_link": "https://www.ithome.com/0/964/590.htm",
-      "source_site": "IT之家",
-      "published_at": "2026-06-15T22:28:39+08:00",
       "leadership_category": "AI技术与产业应用",
       "organization": "IT之家",
       "language": "zh",
@@ -253,36 +238,6 @@
       "published_at": "2026-06-15T11:24:30+08:00",
       "leadership_category": "AI技术与产业应用",
       "organization": "量子位",
-      "language": "zh",
-      "source_tier": "media",
-      "source_channel": "feed"
-    },
-    {
-      "id": "7aaa45d5febb3397",
-      "date": "2026-06-15",
-      "type": "AI Agent",
-      "title": "OPPO ColorOS 16 六月更新公布：锁屏岛新增酷狗音乐等，6 月 30 日前完成推送",
-      "content_summary": "IT之家 6 月 15 日消息，OPPO 今日公布 ColorOS 16 六月更新内容：AI 流体云再上新，锁屏岛新增酷狗音乐，流体云新增超级课程表、日历课程提醒；小布建议足球观赛卡，小布助手观赛智能体；还有飞牛私有云无感连接、OPPO Bubble 潮玩自拍屏、全新端午节水印等更多功能。 IT之家整理如下： AI 流体云 新增 支持在小布建议和流体云上，显示超级课程表应用的课程信息 支持在小布建议和流体云上，显示支付宝停车服务的计费变动 支持在流体云和锁屏岛上，显示酷狗音乐歌词 AI 功能 新增 小布建议足球观赛卡 支持通过内容传送门，将图片、文本、文档拖拽存入小布记忆 小布助手接入京东、京东金融、飞常准、移动咪咕智能体服务，支…",
-      "detail_link": "https://www.ithome.com/0/964/299.htm",
-      "source_site": "IT之家",
-      "published_at": "2026-06-15T10:48:53+08:00",
-      "leadership_category": "AI技术与产业应用",
-      "organization": "IT之家",
-      "language": "zh",
-      "source_tier": "media",
-      "source_channel": "feed"
-    },
-    {
-      "id": "1f47fb27fc307377",
-      "date": "2026-06-15",
-      "type": "AI资讯",
-      "title": "4 个 M.2 的锐龙 AI Max+ 395 迷你主机：TOPC 推出 T03-395",
-      "content_summary": "IT之家 6 月 15 日消息，TOPC 近日在电商平台上架了基于 AMD 锐龙 AI Max+ 395 处理器的迷你主机新品 T03-395。这一型号具备 4 个 M.2 SSD 盘位（2 个 PCIe Gen4 ×4、2 个 PCIe Gen4 ×2）， 相较一般同类设备拥有更出色的存储扩展能力 。 T03-395 三维 220×220×83 (mm)，体积略大于 4L。其采用六边形蜂窝元素银白色机身，内置 2 颗涡轮风扇和 3 根热管；板载 128GB LPDDR5X- 8533 内存，无线网卡支持 Wi-Fi 7、蓝牙 5.4。 这一机型的外部接口则包含正面的 1 个 USB-C 40Gbps、2 个 USB-A 10Gb…",
-      "detail_link": "https://www.ithome.com/0/964/296.htm",
-      "source_site": "IT之家",
-      "published_at": "2026-06-15T10:45:34+08:00",
-      "leadership_category": "AI技术与产业应用",
-      "organization": "IT之家",
       "language": "zh",
       "source_tier": "media",
       "source_channel": "feed"

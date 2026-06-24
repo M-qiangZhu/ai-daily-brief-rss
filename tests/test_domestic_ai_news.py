@@ -155,6 +155,59 @@ def test_vehicle_news_is_filtered_unless_infrastructure_related(tmp_path):
     ) is False
 
 
+def test_consumer_terminal_news_is_filtered_unless_ai_industry_related(tmp_path):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"feeds": [], "searches": []}), encoding="utf-8")
+    fetcher = DomesticAINewsFetcher(config_path)
+
+    assert not fetcher._is_relevant(
+        "OPPO ColorOS 16 六月更新公布：锁屏岛新增酷狗音乐等",
+        "AI 流体云新增课程提醒，系统更新将在 6 月底前完成推送。",
+        source_name="IT之家",
+    )
+    assert not fetcher._is_relevant(
+        "[macOS] 有没有买了 Mac book Pro M5 的，CPU 温度很容易升高，风扇就狂转",
+        "正常浏览网页和 Codex 开发时发热，想问是不是硬件问题。",
+        source_name="V2EX",
+    )
+    assert not fetcher._is_relevant(
+        "新款 Android 手机参数曝光：电池和充电规格升级",
+        "搭载 AI 拍照功能，售价预计下月公布。",
+        source_name="IT之家",
+    )
+    assert not fetcher._is_relevant(
+        "新款 AI PC 迷你主机参数公布",
+        "机身内置双风扇，售价和接口规格同步公布。",
+        source_name="IT之家",
+    )
+
+    assert fetcher._is_relevant(
+        "手机厂商发布端侧大模型战略",
+        "新系统支持端侧模型、本地推理和 NPU 加速，面向开发者开放 AI 平台。",
+        source_name="IT之家",
+    )
+    assert fetcher._is_relevant(
+        "AI 芯片支持本地推理，终端算力平台发布",
+        "NPU 提供 120 TOPS 算力，面向端侧大模型应用。",
+        source_name="IT之家",
+    )
+    assert fetcher._is_relevant(
+        "AI 红利分配不均：三星存储器部门奖金上涨",
+        "三星半导体和芯片代工业务是全球 AI 供应链的重要环节。",
+        source_name="IT之家",
+    )
+    assert fetcher._is_relevant(
+        "行业首款开源鸿蒙消费级人形机器人亮相",
+        "机器人接入开发者生态，面向具身智能和 AI Agent 场景。",
+        source_name="IT之家",
+    )
+    assert fetcher._is_relevant(
+        "企业 AI Agent 平台发布 iOS SDK",
+        "平台提供可复用工作流、模型调用 API 和开发者生态能力。",
+        source_name="V2EX",
+    )
+
+
 def test_brief_sort_prioritizes_leadership_topics():
     items = [
         NewsItem("1", "2026-05-11", "AI编程", "编程工具", "", "https://example.com/1", "测试", "2026-05-11T12:00:00+00:00"),
