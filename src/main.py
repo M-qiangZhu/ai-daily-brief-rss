@@ -31,30 +31,31 @@ def _stringify_outputs(outputs: dict) -> dict:
     return result
 
 
-def _wechat_webhook_urls() -> list[str]:
+def _wechat_webhook_targets() -> list[dict[str, str]]:
     values = [
-        os.environ.get("WECHAT_WEBHOOK_URL", ""),
-        os.environ.get("WECHAT_WEBHOOK_URL_TEST", ""),
-        os.environ.get("WECHAT_WEBHOOK_URLS", ""),
+        (os.environ.get("WECHAT_WEBHOOK_URL", ""), ""),
+        (os.environ.get("WECHAT_WEBHOOK_URL_TEST", ""), "【企业微信测试渠道】\n"),
+        (os.environ.get("WECHAT_WEBHOOK_URLS", ""), ""),
     ]
-    urls = []
+    targets = []
     seen = set()
-    for value in values:
+    for value, prefix in values:
         for part in value.replace("\n", ",").split(","):
             url = part.strip()
             if not url or url in seen:
                 continue
             seen.add(url)
-            urls.append(url)
-    return urls
+            targets.append({"url": url, "prefix": prefix})
+    return targets
 
 
 async def _send_wechat_markdown_to_all(content: str) -> list[dict]:
     responses = []
-    for index, webhook_url in enumerate(_wechat_webhook_urls(), start=1):
+    for index, target in enumerate(_wechat_webhook_targets(), start=1):
+        message = target["prefix"] + content
         responses.append({
             "target": index,
-            "response": await send_wechat_markdown(webhook_url, content),
+            "response": await send_wechat_markdown(target["url"], message),
         })
     return responses
 
@@ -90,9 +91,9 @@ async def build(
         report_date.isoformat(),
     )
     notification = {"enabled": False}
-    webhook_urls = _wechat_webhook_urls()
+    webhook_targets = _wechat_webhook_targets()
     if notify:
-        if not webhook_urls:
+        if not webhook_targets:
             notification = {"enabled": True, "sent": False, "reason": "WECHAT_WEBHOOK_URL is not set"}
         elif _notification_sent(report_date, config):
             notification = {"enabled": True, "sent": False, "reason": "daily notification already sent"}
@@ -131,8 +132,8 @@ async def notify_from_archive(
             "archive": str(archive_path),
         }
 
-    webhook_urls = _wechat_webhook_urls()
-    if not webhook_urls:
+    webhook_targets = _wechat_webhook_targets()
+    if not webhook_targets:
         return {"success": False, "sent": False, "reason": "WECHAT_WEBHOOK_URL is not set"}
     if _notification_sent(report_date, config):
         return {"success": True, "sent": False, "reason": "daily notification already sent"}

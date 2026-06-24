@@ -585,5 +585,6 @@ def test_notify_from_archive_sends_same_content_to_formal_and_test_webhooks(tmp_
     assert result["sent"] is True
     assert result["targets"] == 2
     assert [target for target, _ in sent] == ["https://example.com/formal", "https://example.com/test"]
-    assert sent[0][1] == sent[1][1]
+    assert not sent[0][1].startswith("【企业微信测试渠道】")
+    assert sent[1][1] == "【企业微信测试渠道】\n" + sent[0][1]
     assert "OpenAI 发布新模型" in sent[0][1]
