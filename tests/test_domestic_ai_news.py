@@ -6,6 +6,7 @@ from pathlib import Path
 import httpx
 from bs4 import BeautifulSoup
 
+import src.main as main_module
 from src.domestic_ai_news import DomesticAINewsFetcher, NewsItem
 from src.main import _mark_notification_sent, _notification_sent, notify_from_archive
 from src.notifier import build_wechat_markdown
@@ -540,3 +541,49 @@ def test_notify_from_archive_requires_webhook(tmp_path, monkeypatch):
         "sent": False,
         "reason": "WECHAT_WEBHOOK_URL is not set",
     }
+
+
+def test_notify_from_archive_sends_same_content_to_formal_and_test_webhooks(tmp_path, monkeypatch):
+    report_date = datetime(2026, 6, 15).date()
+    docs_dir = tmp_path / "docs"
+    archive_dir = docs_dir / "archive"
+    archive_dir.mkdir(parents=True)
+    item = NewsItem(
+        "1",
+        "2026-06-15",
+        "AI模型",
+        "OpenAI 发布新模型",
+        "",
+        "https://example.com/1",
+        "OpenAI",
+        "2026-06-15T09:00:00+08:00",
+    )
+    (archive_dir / "2026-06-15.json").write_text(
+        json.dumps({"items": [item.__dict__]}),
+        encoding="utf-8",
+    )
+    config_path = tmp_path / "sources.json"
+    config_path.write_text("{}", encoding="utf-8")
+    monkeypatch.setenv("WECHAT_WEBHOOK_URL", "https://example.com/formal")
+    monkeypatch.setenv("WECHAT_WEBHOOK_URL_TEST", "https://example.com/test")
+    sent = []
+
+    async def fake_send(webhook_url, content):
+        sent.append((webhook_url, content))
+        return {"errcode": 0, "errmsg": "ok"}
+
+    monkeypatch.setattr(main_module, "send_wechat_markdown", fake_send)
+
+    result = asyncio.run(notify_from_archive(
+        report_date,
+        str(config_path),
+        str(docs_dir),
+        "https://brief.example.com",
+    ))
+
+    assert result["success"] is True
+    assert result["sent"] is True
+    assert result["targets"] == 2
+    assert [target for target, _ in sent] == ["https://example.com/formal", "https://example.com/test"]
+    assert sent[0][1] == sent[1][1]
+    assert "OpenAI 发布新模型" in sent[0][1]

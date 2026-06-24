@@ -31,6 +31,34 @@ def _stringify_outputs(outputs: dict) -> dict:
     return result
 
 
+def _wechat_webhook_urls() -> list[str]:
+    values = [
+        os.environ.get("WECHAT_WEBHOOK_URL", ""),
+        os.environ.get("WECHAT_WEBHOOK_URL_TEST", ""),
+        os.environ.get("WECHAT_WEBHOOK_URLS", ""),
+    ]
+    urls = []
+    seen = set()
+    for value in values:
+        for part in value.replace("\n", ",").split(","):
+            url = part.strip()
+            if not url or url in seen:
+                continue
+            seen.add(url)
+            urls.append(url)
+    return urls
+
+
+async def _send_wechat_markdown_to_all(content: str) -> list[dict]:
+    responses = []
+    for index, webhook_url in enumerate(_wechat_webhook_urls(), start=1):
+        responses.append({
+            "target": index,
+            "response": await send_wechat_markdown(webhook_url, content),
+        })
+    return responses
+
+
 async def build(
     days: int | None,
     target_date: date | None,
@@ -62,14 +90,15 @@ async def build(
         report_date.isoformat(),
     )
     notification = {"enabled": False}
-    webhook_url = os.environ.get("WECHAT_WEBHOOK_URL", "").strip()
+    webhook_urls = _wechat_webhook_urls()
     if notify:
-        if not webhook_url:
+        if not webhook_urls:
             notification = {"enabled": True, "sent": False, "reason": "WECHAT_WEBHOOK_URL is not set"}
         elif _notification_sent(report_date, config):
             notification = {"enabled": True, "sent": False, "reason": "daily notification already sent"}
         else:
-            notification = {"enabled": True, "sent": True, "response": await send_wechat_markdown(webhook_url, brief_markdown)}
+            responses = await _send_wechat_markdown_to_all(brief_markdown)
+            notification = {"enabled": True, "sent": True, "targets": len(responses), "responses": responses}
             _mark_notification_sent(report_date, config)
     return {
         "success": True,
@@ -102,22 +131,23 @@ async def notify_from_archive(
             "archive": str(archive_path),
         }
 
-    webhook_url = os.environ.get("WECHAT_WEBHOOK_URL", "").strip()
-    if not webhook_url:
+    webhook_urls = _wechat_webhook_urls()
+    if not webhook_urls:
         return {"success": False, "sent": False, "reason": "WECHAT_WEBHOOK_URL is not set"}
     if _notification_sent(report_date, config):
         return {"success": True, "sent": False, "reason": "daily notification already sent"}
 
     page_url = public_url.rstrip("/") + "/ai-news.html" if public_url else ""
     content = build_wechat_markdown(items, page_url, report_date.isoformat())
-    response = await send_wechat_markdown(webhook_url, content)
+    responses = await _send_wechat_markdown_to_all(content)
     _mark_notification_sent(report_date, config)
     return {
         "success": True,
         "sent": True,
         "count": len(items),
         "archive": str(archive_path),
-        "response": response,
+        "targets": len(responses),
+        "responses": responses,
     }
 
 
