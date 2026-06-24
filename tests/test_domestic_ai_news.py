@@ -205,6 +205,14 @@ def test_extracts_plain_text_mail_news_candidates():
     ]
 
 
+def test_imap_id_compatibility_errors_are_ignored():
+    class MailboxWithoutId:
+        def _simple_command(self, *args):
+            raise KeyError("ID")
+
+    DomesticAINewsFetcher._send_imap_id(MailboxWithoutId())
+
+
 def test_keyword_matching_avoids_short_ascii_substrings(tmp_path):
     config_path = tmp_path / "sources.json"
     config_path.write_text(json.dumps({"feeds": [], "searches": []}), encoding="utf-8")

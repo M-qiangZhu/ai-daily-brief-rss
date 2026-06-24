@@ -840,7 +840,7 @@ class DomesticAINewsFetcher:
                 "ID",
                 '("name" "ai-daily-brief" "version" "1.0" "vendor" "ai-daily-brief")',
             )
-        except imaplib.IMAP4.error:
+        except Exception:
             pass
 
     @staticmethod
