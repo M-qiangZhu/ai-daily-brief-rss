@@ -897,18 +897,39 @@ class DomesticAINewsFetcher:
             link = link_el.get("href", "").strip()
             if not link.startswith(("http://", "https://")) or link in seen_links:
                 continue
-            title = cls._clean_text(link_el.get_text(" ", strip=True))
+            title, summary = cls._mail_link_title_summary(link_el)
             if not title or len(title) < int(source.get("min_title_chars", 6)):
                 continue
-            block = link_el.find_parent(["li", "tr", "article", "section", "p", "div"]) or link_el
-            summary = cls._clean_text(block.get_text(" ", strip=True))
-            if summary == title:
-                next_text = cls._mail_neighbor_text(block)
-                if next_text:
-                    summary = f"{title} {next_text}"
             candidates.append({"title": title, "link": link, "summary": summary})
             seen_links.add(link)
         return candidates
+
+    @classmethod
+    def _mail_link_title_summary(cls, link_el) -> tuple[str, str]:
+        link_text = cls._clean_text(link_el.get_text(" ", strip=True))
+        block = link_el.find_parent(["li", "tr", "article", "section", "p", "div"]) or link_el
+        title_el = block.select_one(".news-title, [class*='title']")
+        content_el = block.select_one(".news-content, [class*='content'], .summary, [class*='summary']")
+        source_el = block.select_one(".news-source, [class*='source']")
+
+        title = cls._clean_text(title_el.get_text(" ", strip=True)) if title_el else link_text
+        if title in {"查看原文", "阅读全文", "阅读原文", "详情", "查看详情"}:
+            title = ""
+
+        content = cls._clean_text(content_el.get_text(" ", strip=True)) if content_el else ""
+        source = cls._clean_text(source_el.get_text(" ", strip=True)) if source_el else ""
+        if content:
+            summary = f"{title} {content}".strip()
+            if source:
+                summary = f"{summary} {source}".strip()
+            return title, summary
+
+        summary = cls._clean_text(block.get_text(" ", strip=True))
+        if summary == title:
+            next_text = cls._mail_neighbor_text(block)
+            if next_text:
+                summary = f"{title} {next_text}"
+        return title, summary
 
     @classmethod
     def _extract_plain_mail_news_candidates(cls, body: str, source: dict | None = None) -> list[dict]:
@@ -1201,31 +1222,61 @@ class DomesticAINewsFetcher:
 
     @staticmethod
     def _classify(title: str, summary: str) -> str:
+        title_text = title.lower()
         text = f"{title}\n{summary}".lower()
-        if DomesticAINewsFetcher._looks_like_policy(text):
+        if DomesticAINewsFetcher._looks_like_policy(title, summary):
             return "政策"
+        title_robot_terms = ["机器人", "具身智能", "世界模型", "embodied ai", "figure ai", "unitree", "宇树"]
+        title_hardware_terms = ["ai pc", "ai手机", "ai眼镜", "智能眼镜", "ai耳机", "智能穿戴", "xr", "ar", "mr", "vision pro"]
+        title_infra_terms = ["算力", "数据中心", "云基础设施", "云网", "gpu", "nvidia", "昇腾", "边缘ai", "芯片", "网络"]
+        if any(DomesticAINewsFetcher._keyword_matches(title_text, keyword) for keyword in title_robot_terms):
+            return "机器人"
+        if any(DomesticAINewsFetcher._keyword_matches(title_text, keyword) for keyword in title_hardware_terms):
+            return "AI硬件"
+        if any(DomesticAINewsFetcher._keyword_matches(title_text, keyword) for keyword in title_infra_terms):
+            return "算力芯片"
         rules = [
             ("运营商", ["中国电信", "中国移动", "中国联通", "运营商", "天翼", "移动云", "联通云"]),
             ("AI编程", ["ai coding", "ai编程", "vibe coding", "copilot", "cursor", "windsurf", "claude code", "codex", "devin", "cline", "aider"]),
             ("AI Agent", ["智能体", "agent", "multi-agent", "workflow", "langgraph", "autogen", "dify", "mcp", "function calling", "tool use"]),
             ("AI模型", ["大模型", "基础模型", "推理模型", "llm", "vlm", "slm", "deepseek", "通义", "qwen", "豆包", "kimi", "glm", "claude", "gemini", "gpt"]),
-            ("算力芯片", ["算力", "nvidia", "cuda", "blackwell", "h100", "h200", "b200", "gb200", "昇腾", "ascend", "gpu", "tpu", "mi300", "芯片"]),
-            ("机器人", ["机器人", "具身智能", "embodied ai", "figure ai", "unitree", "宇树", "spatial intelligence"]),
-            ("AI硬件", ["ai pc", "ai手机", "ai眼镜", "智能设备", "ai耳机", "智能穿戴", "xr", "ar", "mr", "vision pro"]),
-            ("AI安全", ["ai安全", "模型对齐", "alignment", "深度伪造", "deepfake", "ai监管", "欧盟ai法案", "版权"]),
+            ("AI安全", ["ai安全", "模型对齐", "alignment", "深度伪造", "deepfake", "ai监管", "欧盟ai法案", "版权", "合规", "安全", "自律", "治理"]),
+            ("机器人", ["机器人", "具身智能", "世界模型", "embodied ai", "figure ai", "unitree", "宇树", "spatial intelligence"]),
+            ("AI硬件", ["ai pc", "ai手机", "ai眼镜", "智能眼镜", "智能设备", "ai耳机", "智能穿戴", "xr", "ar", "mr", "vision pro"]),
+            ("算力芯片", ["算力", "nvidia", "cuda", "blackwell", "h100", "h200", "b200", "gb200", "昇腾", "ascend", "gpu", "tpu", "npu", "tops", "mi300", "芯片"]),
             ("AI技术", ["多模态", "机器学习", "深度学习", "算法", "训练", "推理", "rag", "embedding", "向量数据库", "transformer", "diffusion"]),
         ]
         for label, keywords in rules:
-            if any(keyword.lower() in text for keyword in keywords):
+            if any(DomesticAINewsFetcher._keyword_matches(text, keyword) for keyword in keywords):
                 return label
         return "AI资讯"
 
     @staticmethod
-    def _looks_like_policy(text: str) -> bool:
-        direct_terms = ["政策", "通知", "办法", "国家数据局", "工信厅", "行动方案", "实施方案", "政务"]
-        if any(term in text for term in direct_terms):
+    def _looks_like_policy(title: str, summary: str = "") -> bool:
+        title_text = title.lower()
+        text = f"{title}\n{summary}".lower()
+        title_terms = [
+            "政策",
+            "标准",
+            "征集起草",
+            "办法",
+            "通知",
+            "行动方案",
+            "实施方案",
+            "监管持续升温",
+            "数据安全",
+            "政务",
+            "法案",
+            "条例",
+            "规范",
+            "指南",
+        ]
+        if any(term in title_text for term in title_terms):
             return True
-        return bool(re.search(r"(工信部|国家数据局).{0,16}(发布|印发|通知|部署|组织|征求|开展)", text))
+        action_pattern = r"(工信部|国家数据局|网信办|市场监管总局|发改委|国务院|地方政府).{0,20}(发布|印发|通知|部署|组织|征求|开展|出台|实施)"
+        if re.search(action_pattern, text):
+            return True
+        return bool(re.search(r"(标准|办法|条例|规范|指南|行动方案|实施方案).{0,20}(发布|印发|征求|起草|实施|落地)", text))
 
     @staticmethod
     def _leadership_category(news_type: str, title: str, summary: str, source_site: str) -> str:
@@ -1236,6 +1287,8 @@ class DomesticAINewsFetcher:
             return "政策与监管"
         if news_type == "运营商" or any(keyword in text for keyword in ["中国电信", "中国移动", "中国联通", "运营商", "央企", "国资"]):
             return "运营商与央国企动态"
+        if news_type in {"AI模型", "AI Agent", "机器人", "AI硬件", "AI技术"}:
+            return "AI技术与产业应用"
         if news_type == "算力芯片" or any(keyword in text for keyword in ["算力", "数据中心", "云计算", "云服务", "云基础设施", "云网", "gpu", "nvidia", "昇腾", "边缘ai", "液冷"]):
             return "算力、数据中心与云基础设施"
         if news_type == "AI安全" or any(keyword in text for keyword in ["安全", "合规", "监管", "对齐", "deepfake", "版权"]):

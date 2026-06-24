@@ -79,7 +79,7 @@ class PageGenerator:
             except (json.JSONDecodeError, TypeError, OSError):
                 existing_items = []
 
-        merged = DomesticAINewsFetcher._dedupe([*existing_items, *new_items])
+        merged = DomesticAINewsFetcher._dedupe([*new_items, *existing_items])
         return sorted(
             merged,
             key=lambda item: (

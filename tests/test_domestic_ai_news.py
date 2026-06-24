@@ -206,6 +206,46 @@ def test_extracts_plain_text_mail_news_candidates():
     ]
 
 
+def test_extracts_table_based_html_mail_news_candidates():
+    body = """
+    <table>
+      <tr>
+        <td><span class="news-ord">1</span></td>
+        <td>
+          <div class="news-title">人工智能产业日报(06.22) : AI产业动态</div>
+          <div class="news-content">中信证券看好头部模型厂商及AI基建、AI应用投资机会。</div>
+          <div class="news-source">来源：腾讯网</div>
+          <a class="news-link" href="https://news.qq.com/rain/a/20260623A04DV500">查看原文</a>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="news-ord">2</span></td>
+        <td>
+          <div class="news-title">多家外资巨头一致看好A股AI和半导体板块</div>
+          <div class="news-content">多家外资机构一致看好中国AI与半导体产业链的中长期价值。</div>
+          <div class="news-source">来源：腾讯网</div>
+          <a class="news-link-secondary" href="https://news.qq.com/rain/a/20260623A03NYI00">查看原文</a>
+        </td>
+      </tr>
+    </table>
+    """
+
+    candidates = DomesticAINewsFetcher._extract_mail_news_candidates(body, True)
+
+    assert candidates == [
+        {
+            "title": "人工智能产业日报(06.22) : AI产业动态",
+            "link": "https://news.qq.com/rain/a/20260623A04DV500",
+            "summary": "人工智能产业日报(06.22) : AI产业动态 中信证券看好头部模型厂商及AI基建、AI应用投资机会。 来源：腾讯网",
+        },
+        {
+            "title": "多家外资巨头一致看好A股AI和半导体板块",
+            "link": "https://news.qq.com/rain/a/20260623A03NYI00",
+            "summary": "多家外资巨头一致看好A股AI和半导体板块 多家外资机构一致看好中国AI与半导体产业链的中长期价值。 来源：腾讯网",
+        },
+    ]
+
+
 def test_imap_id_compatibility_errors_are_ignored():
     imaplib.Commands.pop("ID", None)
 
@@ -366,6 +406,57 @@ def test_policy_classification_avoids_generic_planning_mentions(tmp_path):
 
     assert fetcher._classify("工信部发布人工智能行动方案", "推进产业高质量发展") == "政策"
     assert fetcher._classify("科技企业为人工智能发展规划筹措资金", "用于 AI 基础设施建设") != "政策"
+    assert fetcher._classify("AI眼镜密集上新 行业迎来市场普及关键节点", "消费补贴政策带动智能穿戴设备销售") == "AI硬件"
+
+
+def test_mail_news_samples_classify_by_subject(tmp_path):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"feeds": [], "searches": []}), encoding="utf-8")
+    fetcher = DomesticAINewsFetcher(config_path)
+
+    samples = [
+        (
+            "AI眼镜密集上新 行业迎来市场普及关键节点",
+            "多家厂商推出 AI 眼镜和智能眼镜新品，消费补贴政策带动市场热度。",
+            "AI硬件",
+            "AI技术与产业应用",
+        ),
+        (
+            "Anthropic 万字长文:AI 自律时代已经到来",
+            "文章讨论模型自律、AI安全和监管框架演进。",
+            "AI安全",
+            "风险、安全与合规",
+        ),
+        (
+            "全国首部医疗AI数据安全标准征集起草单位",
+            "医疗人工智能数据安全标准启动起草。",
+            "政策",
+            "政策与监管",
+        ),
+        (
+            "2026年 AI新贵们集体押注世界模型 机器人走向真实世界",
+            "世界模型需要训练和算力支撑，但主体是机器人与具身智能落地。",
+            "机器人",
+            "AI技术与产业应用",
+        ),
+        (
+            "打破算力瓶颈 英特尔车载AI Box Ultra成为本地AI大脑",
+            "车载边缘 AI 系统提供本地推理算力。",
+            "算力芯片",
+            "算力、数据中心与云基础设施",
+        ),
+        (
+            "爱立信Ericsson Forum:算力之外,AI的下一道门槛是网络",
+            "AI 应用进入无人机、机器人和 AI 眼镜等现场后，网络承载成为关键。",
+            "算力芯片",
+            "算力、数据中心与云基础设施",
+        ),
+    ]
+
+    for title, summary, expected_type, expected_category in samples:
+        news_type = fetcher._classify(title, summary)
+        assert news_type == expected_type
+        assert fetcher._leadership_category(news_type, title, summary, "163新闻邮件") == expected_category
 
 
 def test_leadership_category_maps_telecom_and_infra_topics(tmp_path):
@@ -510,6 +601,42 @@ def test_page_generator_merges_daily_archive(tmp_path):
     assert archive["count"] == 2
     assert index["latest_date"] == "2026-05-17"
     assert index["dates"][0]["count"] == 2
+
+
+def test_page_generator_refreshes_existing_archive_items(tmp_path):
+    docs_dir = tmp_path / "docs"
+    generator = PageGenerator(docs_dir, latest_path=tmp_path / "latest.json")
+    old_item = NewsItem(
+        "1",
+        "2026-06-24",
+        "政策",
+        "AI眼镜密集上新 行业迎来市场普及关键节点",
+        "摘要里出现补贴政策",
+        "https://example.com/ai-glasses",
+        "163新闻邮件",
+        "2026-06-24T09:00:00+08:00",
+        "政策与监管",
+    )
+    refreshed_item = NewsItem(
+        "1",
+        "2026-06-24",
+        "AI硬件",
+        "AI眼镜密集上新 行业迎来市场普及关键节点",
+        "多家厂商推出 AI 眼镜新品。",
+        "https://example.com/ai-glasses",
+        "163新闻邮件",
+        "2026-06-24T09:00:00+08:00",
+        "AI技术与产业应用",
+    )
+
+    generator.write_daily([old_item])
+    generator.write_daily([refreshed_item])
+
+    archive = json.loads((docs_dir / "archive" / "2026-06-24.json").read_text(encoding="utf-8"))
+    assert archive["count"] == 1
+    assert archive["items"][0]["type"] == "AI硬件"
+    assert archive["items"][0]["leadership_category"] == "AI技术与产业应用"
+    assert archive["items"][0]["content_summary"] == "多家厂商推出 AI 眼镜新品。"
 
 
 def test_html_official_source_parses_entries(tmp_path):
