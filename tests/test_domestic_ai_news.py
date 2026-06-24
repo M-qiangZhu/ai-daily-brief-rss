@@ -1,4 +1,5 @@
 import asyncio
+from email.message import EmailMessage
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -78,6 +79,130 @@ def test_feed_filters_non_ai_item(tmp_path):
             return await fetcher._fetch_feed(client, fetcher.config["feeds"][0], now.replace(hour=0))
 
     assert asyncio.run(run()) == []
+
+
+def _mail_bytes(subject: str, date_value: str, html: str | None = None, text: str | None = None) -> bytes:
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = "news@example.com"
+    message["To"] = "reader@example.com"
+    message["Date"] = date_value
+    message["Message-ID"] = f"<{abs(hash(subject))}@example.com>"
+    message.set_content(text or "plain fallback")
+    if html is not None:
+        message.add_alternative(html, subtype="html")
+    return message.as_bytes()
+
+
+class FakeIMAP:
+    messages: dict[bytes, bytes] = {}
+    commands: list[tuple] = []
+
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.closed = False
+
+    def login(self, user, password):
+        self.commands.append(("login", user, password))
+        return "OK", []
+
+    def _simple_command(self, *args):
+        self.commands.append(("_simple_command", *args))
+        return "OK", []
+
+    def select(self, folder, readonly=False):
+        self.commands.append(("select", folder, readonly))
+        return "OK", []
+
+    def search(self, charset, *criteria):
+        self.commands.append(("search", charset, *criteria))
+        return "OK", [b" ".join(self.messages.keys())]
+
+    def fetch(self, message_id, query):
+        self.commands.append(("fetch", message_id, query))
+        return "OK", [(b"1 (BODY[])", self.messages[message_id])]
+
+    def close(self):
+        self.closed = True
+        return "OK", []
+
+    def logout(self):
+        return "BYE", []
+
+
+def test_imap_mail_fetch_extracts_html_news_and_uses_body_peek(tmp_path, monkeypatch):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"feeds": [], "searches": []}), encoding="utf-8")
+    fetcher = DomesticAINewsFetcher(config_path)
+    FakeIMAP.commands = []
+    FakeIMAP.messages = {
+        b"1": _mail_bytes(
+            "今日新闻",
+            "Wed, 24 Jun 2026 08:10:00 +0800",
+            html="""
+            <html><body>
+              <ul>
+                <li><a href="https://example.com/model">OpenAI 发布新模型</a><p>大模型推理能力升级。</p></li>
+                <li><a href="https://example.com/agent">企业 AI Agent 平台发布</a><p>智能体工作流面向开发者开放。</p></li>
+                <li><a href="https://example.com/model">OpenAI 发布新模型</a></li>
+              </ul>
+            </body></html>
+            """,
+        )
+    }
+    monkeypatch.setattr("src.domestic_ai_news.imaplib.IMAP4_SSL", FakeIMAP)
+    monkeypatch.setenv("MAIL_NEWS_IMAP_USER", "reader@163.com")
+    monkeypatch.setenv("MAIL_NEWS_IMAP_PASSWORD", "auth-code")
+
+    items = fetcher._fetch_imap_mail(
+        {"name": "163新闻邮件", "kind": "imap_mail", "folder": "INBOX", "source_tier": "media", "channel": "mail"},
+        datetime(2026, 6, 24, tzinfo=timezone.utc),
+        datetime(2026, 6, 25, tzinfo=timezone.utc),
+    )
+
+    assert [item.title for item in items] == ["OpenAI 发布新模型", "企业 AI Agent 平台发布"]
+    assert all(item.source_site == "163新闻邮件" for item in items)
+    assert all(item.source_channel == "mail" for item in items)
+    assert ("fetch", b"1", "(BODY.PEEK[])") in FakeIMAP.commands
+    assert any(command[0] == "_simple_command" and command[1] == "ID" for command in FakeIMAP.commands)
+
+
+def test_imap_mail_filters_out_non_today_messages(tmp_path, monkeypatch):
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps({"feeds": [], "searches": []}), encoding="utf-8")
+    fetcher = DomesticAINewsFetcher(config_path)
+    FakeIMAP.commands = []
+    FakeIMAP.messages = {
+        b"1": _mail_bytes(
+            "昨天新闻",
+            "Tue, 23 Jun 2026 23:30:00 +0800",
+            html='<a href="https://example.com/model">OpenAI 发布新模型</a>',
+        )
+    }
+    monkeypatch.setattr("src.domestic_ai_news.imaplib.IMAP4_SSL", FakeIMAP)
+    monkeypatch.setenv("MAIL_NEWS_IMAP_USER", "reader@163.com")
+    monkeypatch.setenv("MAIL_NEWS_IMAP_PASSWORD", "auth-code")
+
+    items = fetcher._fetch_imap_mail(
+        {"name": "163新闻邮件", "kind": "imap_mail"},
+        datetime(2026, 6, 24, tzinfo=timezone.utc),
+        datetime(2026, 6, 25, tzinfo=timezone.utc),
+    )
+
+    assert items == []
+
+
+def test_extracts_plain_text_mail_news_candidates():
+    candidates = DomesticAINewsFetcher._extract_mail_news_candidates(
+        "OpenAI 发布新模型 https://example.com/model\n普通生活记录 https://example.com/life",
+        False,
+    )
+
+    assert candidates == [
+        {"title": "OpenAI 发布新模型", "link": "https://example.com/model", "summary": "OpenAI 发布新模型"},
+        {"title": "普通生活记录", "link": "https://example.com/life", "summary": "普通生活记录"},
+    ]
 
 
 def test_keyword_matching_avoids_short_ascii_substrings(tmp_path):

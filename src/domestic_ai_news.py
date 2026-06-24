@@ -4,11 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import calendar
+import email
 import hashlib
+import imaplib
 import json
+import os
 import re
 from dataclasses import asdict, dataclass
 from datetime import date, datetime, time, timedelta, timezone
+from email import policy
+from email.message import EmailMessage
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Iterable
@@ -647,6 +652,8 @@ class DomesticAINewsFetcher:
                 items = await self._fetch_huggingface(client, source, since, until, local_tz)
             elif kind == "baidu_news":
                 items = await self._fetch_baidu_news(client, source, since, until, local_tz)
+            elif kind == "imap_mail":
+                items = await asyncio.to_thread(self._fetch_imap_mail, source, since, until, local_tz)
             else:
                 raise ValueError(f"Unsupported source kind: {kind}")
             self._record_health(name, kind, True, len(items))
@@ -742,6 +749,191 @@ class DomesticAINewsFetcher:
                 source=source,
             ))
         return items
+
+    def _fetch_imap_mail(
+        self,
+        source: dict,
+        since: datetime,
+        until: datetime | None = None,
+        local_tz: ZoneInfo | None = None,
+    ) -> list[NewsItem]:
+        local_tz = local_tz or ZoneInfo("Asia/Shanghai")
+        user = os.environ.get(source.get("user_env", "MAIL_NEWS_IMAP_USER"), "").strip()
+        password = os.environ.get(source.get("password_env", "MAIL_NEWS_IMAP_PASSWORD"), "").strip()
+        if not user or not password:
+            raise ValueError("IMAP credentials are not configured")
+
+        host = os.environ.get(source.get("host_env", "MAIL_NEWS_IMAP_HOST"), "").strip() or source.get("host", "imap.163.com")
+        port_value = os.environ.get(source.get("port_env", "MAIL_NEWS_IMAP_PORT"), "").strip() or source.get("port", 993)
+        port = int(port_value)
+        folder = source.get("folder", "INBOX")
+        max_messages = int(source.get("max_messages", source.get("max_entries", 20)))
+
+        mailbox = imaplib.IMAP4_SSL(host, port)
+        try:
+            mailbox.login(user, password)
+            self._send_imap_id(mailbox)
+            status, _ = mailbox.select(folder, readonly=True)
+            if status != "OK":
+                raise ValueError(f"Cannot select IMAP folder: {folder}")
+
+            criteria = ["SINCE", since.astimezone(local_tz).strftime("%d-%b-%Y")]
+            if until:
+                criteria.extend(["BEFORE", until.astimezone(local_tz).strftime("%d-%b-%Y")])
+            status, data = mailbox.search(None, *criteria)
+            if status != "OK" or not data:
+                return []
+
+            message_ids = data[0].split()[-max_messages:]
+            items: list[NewsItem] = []
+            seen_links = set()
+            for message_id in reversed(message_ids):
+                status, fetched = mailbox.fetch(message_id, "(BODY.PEEK[])")
+                if status != "OK":
+                    continue
+                raw_message = self._imap_message_bytes(fetched)
+                if not raw_message:
+                    continue
+                message = email.message_from_bytes(raw_message, policy=policy.default)
+                published_at = self._parse_datetime(str(message.get("Date", ""))) or self._first_seen_at(
+                    self._mail_message_key(message, source)
+                )
+                if published_at < since or (until and published_at >= until):
+                    continue
+
+                body, is_html = self._mail_body(message)
+                for candidate in self._extract_mail_news_candidates(body, is_html, source)[: source.get("max_items_per_message", 20)]:
+                    link = candidate["link"]
+                    if link in seen_links:
+                        continue
+                    seen_links.add(link)
+                    title = candidate["title"]
+                    summary = self._summary(candidate["summary"] or title)
+                    if not self._is_valid_result(title, link) or not self._source_accepts(source, title, summary):
+                        continue
+                    items.append(self._make_item(
+                        title=title,
+                        link=link,
+                        summary=summary,
+                        source_site=source.get("name", "邮箱新闻"),
+                        published_at=published_at,
+                        category=source.get("category"),
+                        local_tz=local_tz,
+                        leadership_category=source.get("leadership_category"),
+                        source=source,
+                    ))
+            return items
+        finally:
+            try:
+                mailbox.close()
+            except imaplib.IMAP4.error:
+                pass
+            try:
+                mailbox.logout()
+            except imaplib.IMAP4.error:
+                pass
+
+    @staticmethod
+    def _send_imap_id(mailbox: imaplib.IMAP4_SSL) -> None:
+        try:
+            mailbox._simple_command(
+                "ID",
+                '("name" "ai-daily-brief" "version" "1.0" "vendor" "ai-daily-brief")',
+            )
+        except imaplib.IMAP4.error:
+            pass
+
+    @staticmethod
+    def _imap_message_bytes(fetched: list | tuple) -> bytes:
+        for part in fetched or []:
+            if isinstance(part, tuple) and len(part) >= 2 and isinstance(part[1], bytes):
+                return part[1]
+        return b""
+
+    @staticmethod
+    def _mail_message_key(message: EmailMessage, source: dict) -> str:
+        message_id = str(message.get("Message-ID", "")).strip()
+        subject = str(message.get("Subject", "")).strip()
+        return f"imap:{source.get('name', 'mail')}:{message_id or subject}"
+
+    @staticmethod
+    def _mail_body(message: EmailMessage) -> tuple[str, bool]:
+        html_parts = []
+        text_parts = []
+        parts = message.walk() if message.is_multipart() else [message]
+        for part in parts:
+            if part.get_content_disposition() == "attachment":
+                continue
+            content_type = part.get_content_type()
+            if content_type not in {"text/html", "text/plain"}:
+                continue
+            try:
+                content = part.get_content()
+            except (LookupError, UnicodeDecodeError):
+                payload = part.get_payload(decode=True) or b""
+                charset = part.get_content_charset() or "utf-8"
+                content = payload.decode(charset, errors="replace")
+            if content_type == "text/html":
+                html_parts.append(str(content))
+            else:
+                text_parts.append(str(content))
+        if html_parts:
+            return "\n".join(html_parts), True
+        return "\n".join(text_parts), False
+
+    @classmethod
+    def _extract_mail_news_candidates(cls, body: str, is_html: bool, source: dict | None = None) -> list[dict]:
+        source = source or {}
+        if not body:
+            return []
+        if not is_html:
+            return cls._extract_plain_mail_news_candidates(body, source)
+
+        soup = BeautifulSoup(body, "html.parser")
+        candidates = []
+        seen_links = set()
+        for link_el in soup.select("a[href]"):
+            link = link_el.get("href", "").strip()
+            if not link.startswith(("http://", "https://")) or link in seen_links:
+                continue
+            title = cls._clean_text(link_el.get_text(" ", strip=True))
+            if not title or len(title) < int(source.get("min_title_chars", 6)):
+                continue
+            block = link_el.find_parent(["li", "tr", "article", "section", "p", "div"]) or link_el
+            summary = cls._clean_text(block.get_text(" ", strip=True))
+            if summary == title:
+                next_text = cls._mail_neighbor_text(block)
+                if next_text:
+                    summary = f"{title} {next_text}"
+            candidates.append({"title": title, "link": link, "summary": summary})
+            seen_links.add(link)
+        return candidates
+
+    @classmethod
+    def _extract_plain_mail_news_candidates(cls, body: str, source: dict | None = None) -> list[dict]:
+        source = source or {}
+        candidates = []
+        seen_links = set()
+        pattern = re.compile(r"(?P<title>[^\n\r]{6,120})\s+(?P<link>https?://\S+)")
+        for match in pattern.finditer(body):
+            link = match.group("link").rstrip(").,，。；;]")
+            if link in seen_links:
+                continue
+            title = cls._clean_text(match.group("title"))
+            if len(title) < int(source.get("min_title_chars", 6)):
+                continue
+            candidates.append({"title": title, "link": link, "summary": title})
+            seen_links.add(link)
+        return candidates
+
+    @staticmethod
+    def _mail_neighbor_text(block) -> str:
+        pieces = []
+        for sibling in list(block.find_next_siblings())[:2]:
+            text = DomesticAINewsFetcher._clean_text(sibling.get_text(" ", strip=True))
+            if text:
+                pieces.append(text)
+        return " ".join(pieces)
 
     async def _fetch_huggingface(
         self,

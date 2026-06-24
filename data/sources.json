@@ -355,6 +355,17 @@
       "max_entries": 30
     },
     {
+      "name": "163新闻邮件",
+      "kind": "imap_mail",
+      "folder": "INBOX",
+      "language": "zh",
+      "source_tier": "media",
+      "channel": "mail",
+      "enabled": true,
+      "max_messages": 30,
+      "max_items_per_message": 20
+    },
+    {
       "name": "AI 垂直媒体",
       "kind": "baidu_news",
       "query": "人工智能 大模型 生成式AI 智能体 机器之心 量子位 InfoQ",
